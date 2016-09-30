@@ -1039,7 +1039,7 @@ int input_read_parameters(
       if((strstr(string1,"y") != NULL) || (strstr(string1,"Y") != NULL)){
         pba->attractor_ic_scf = _TRUE_;
         if (pba->scf_parameters[0] >= 0.)
-    	pba->y_phi_ini_scf = 5.*pba->theta_phi_ini_scf*pow(1.-2.*y2_phi_scf(pba,pba->Omega_phi_ini_scf,pba->theta_phi_ini_scf,0.)*pow(pba->Omega_phi_ini_scf,0.5)*cos_scf(pba,0.5*pba->theta_phi_ini_scf)/pow(5.*pba->theta_phi_ini_scf,2.),0.5);
+    	pba->y_phi_ini_scf = 5.*pba->theta_phi_ini_scf;
         else
         pba->y_phi_ini_scf = pow(8.,0.5);
         }
