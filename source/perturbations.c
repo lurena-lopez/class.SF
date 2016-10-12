@@ -5561,8 +5561,7 @@ int perturb_total_stress_energy(
           /* Version alpha/vartheta or delta0/delta1 */
       delta_rho_scf = rho_scf*delta0_scf;//-rho_scf*exp(alpha_scf)*sin(0.5*vartheta_scf);
       delta_p_scf = rho_scf*(delta1_scf*sin_scf(pba,theta_phi_scf)-delta0_scf*cos_scf(pba,theta_phi_scf));//exp(alpha_scf)*sin_scf(pba,theta_phi_scf-0.5*vartheta_scf);
-      rho_plus_p_theta_scf = k*k*rho_scf*(delta1_scf*(1.-cos_scf(pba,theta_phi_scf))
-      -delta0_scf*sin_scf(pba,theta_phi_scf))/(a*ppw->pvecback[pba->index_bg_H]*y_phi_scf);
+      rho_plus_p_theta_scf = k*k*rho_scf*(-delta0_scf*sin_scf(pba,theta_phi_scf)+delta1_scf*(1.-cos_scf(pba,theta_phi_scf)))/(a*ppw->pvecback[pba->index_bg_H]*y_phi_scf);
           /*rho_plus_p_theta_scf = -2.*k*k*rho_scf*exp(alpha_scf)
           *(cos(0.5*vartheta_scf)-cos_scf(pba,theta_phi_scf-0.5*vartheta_scf))
           /(a*ppw->pvecback[pba->index_bg_H]*y_phi_scf);*/
@@ -6106,11 +6105,11 @@ int perturb_sources(
     /* delta_scf */
     if (ppt->has_source_delta_scf == _TRUE_) {
       if (ppt->gauge == synchronous){
-	delta_scf = -exp(y[ppw->pv->index_pt_alpha_scf])*sin(0.5*y[ppw->pv->index_pt_vartheta_scf]);
+          delta_scf = y[ppw->pv->index_pt_delta0_scf];//-exp(y[ppw->pv->index_pt_alpha_scf])*sin(0.5*y[ppw->pv->index_pt_vartheta_scf]);
 
       }
       else{
-	delta_scf = -exp(y[ppw->pv->index_pt_alpha_scf])*sin(0.5*y[ppw->pv->index_pt_vartheta_scf]);
+	delta_scf = y[ppw->pv->index_pt_delta0_scf];//-exp(y[ppw->pv->index_pt_alpha_scf])*sin(0.5*y[ppw->pv->index_pt_vartheta_scf]);
       }
       _set_source_(ppt->index_tp_delta_scf) = delta_scf;
     }
@@ -6171,8 +6170,13 @@ int perturb_sources(
 
     /* theta_scf */
     if (ppt->has_source_theta_scf == _TRUE_) {
-      rho_plus_p_theta_scf = (k*k/a_rel)*ppw->pvecback[pba->index_bg_rho_scf]*exp(y[ppw->pv->index_pt_alpha_scf])
-	*(cos(0.5*y[ppw->pv->index_pt_vartheta_scf])-cos_scf(pba,ppw->pvecback[pba->index_bg_theta_phi_scf]-0.5*y[ppw->pv->index_pt_vartheta_scf]));
+    /** New expression in terms of the delta0-delta1 variables */
+        rho_plus_p_theta_scf = k*k*ppw->pvecback[pba->index_bg_rho_scf]*(-y[ppw->pv->index_pt_delta0_scf]*sin_scf(pba,ppw->pvecback[pba->index_bg_theta_phi_scf])
+        +y[ppw->pv->index_pt_delta1_scf]*(1.-cos_scf(pba,ppw->pvecback[pba->index_bg_theta_phi_scf])))
+                                            /(a_rel*ppw->pvecback[pba->index_bg_H]*ppw->pvecback[pba->index_bg_y_phi_scf]);
+                                            
+      //rho_plus_p_theta_scf = (k*k/a_rel)*ppw->pvecback[pba->index_bg_rho_scf]*exp(y[ppw->pv->index_pt_alpha_scf])
+	//*(cos(0.5*y[ppw->pv->index_pt_vartheta_scf])-cos_scf(pba,ppw->pvecback[pba->index_bg_theta_phi_scf]-0.5*y[ppw->pv->index_pt_vartheta_scf]));
       _set_source_(ppt->index_tp_theta_scf) = rho_plus_p_theta_scf/
         (pvecback[pba->index_bg_rho_scf]+pvecback[pba->index_bg_p_scf]);
     }
@@ -7325,12 +7329,13 @@ int perturb_derivs(double tau,
       
     /** ---> Equations of motion for the density contrasts */
         dy[pv->index_pt_delta0_scf] = -a_prime_over_a*((3.*sin_scf(pba,theta_phi_scf)+omega_scf*(1.-cos_scf(pba,theta_phi_scf)))*delta1_scf
-                                                       -omega_scf*sin_scf(pba,theta_phi_scf)*delta0_scf)-metric_continuity*(1.-cos_scf(pba,theta_phi_scf));
+                                                       -omega_scf*sin_scf(pba,theta_phi_scf)*delta0_scf)
+                                                       -metric_continuity*(1.-cos_scf(pba,theta_phi_scf)); //metric_continuity = h'/2
         dy[pv->index_pt_delta1_scf] = -a_prime_over_a*((3.*cos_scf(pba,theta_phi_scf)+omega_scf*sin_scf(pba,theta_phi_scf)
         -pow(Omega_phi_scf,0.5)*sin_scf(pba,0.5*theta_phi_scf)*y2_phi_scf(pba,Omega_phi_scf,theta_phi_scf,y1_phi_scf)/y1_phi_scf)*delta1_scf
                                                        -omega_scf*(1.+cos_scf(pba,theta_phi_scf)
-                                                       +pow(Omega_phi_scf,0.5)*sin_scf(pba,0.5*theta_phi_scf)*y2_phi_scf(pba,Omega_phi_scf,theta_phi_scf,y1_phi_scf)/y1_phi_scf)*delta0_scf)
-                                                       -metric_continuity*sin_scf(pba,theta_phi_scf);
+                                                       +pow(Omega_phi_scf,0.5)*cos_scf(pba,0.5*theta_phi_scf)*y2_phi_scf(pba,Omega_phi_scf,theta_phi_scf,y1_phi_scf)/y1_phi_scf)*delta0_scf)
+                                                       -metric_continuity*sin_scf(pba,theta_phi_scf); //metric_continuity = h'/2
     }
 
     /** - ---> ultra-relativistic neutrino/relics (ur) */
