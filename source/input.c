@@ -517,9 +517,7 @@ int input_read_parameters(
   double param1,param2,param3;
   int N_ncdm=0,n,entries_read;
   int int1,fileentries;
-  //double scf_lambda,scf_omegaplus;
-  //double k11_phi,k13_phi,theta02_phi;
-    double N_phi_trans;
+  double N_phi_trans,a_phi_com;
   double fnu_factor;
   double * pointer1;
   char string1[_ARGUMENT_LENGTH_MAX_];
@@ -1017,6 +1015,10 @@ int input_read_parameters(
     if (pba->scf_parameters[0] >= 0.){
     pba->theta_phi_ini_scf = pba->scf_parameters[1];
     N_phi_trans = 0.5*(log(_PI_/pba->theta_phi_ini_scf)-0.5*log(9.+pow(_PI_,2))+0.5*log(9.+pow(pba->theta_phi_ini_scf,2)));
+    a_phi_com = 5.e-14*pba->scf_parameters[0]*pba->Omega0_scf/(72.*(pba->Omega0_g+pba->Omega0_ur));
+        if (exp(N_phi_trans)*a_phi_com > 0.1) {
+            N_phi_trans = (2./3.)*N_phi_trans-(1./3.)*log(a_phi_com);
+        }
     pba->Omega_phi_ini_scf = pba->scf_parameters[pba->scf_tuning_index]*pba->Omega0_scf*5.e-14*exp(-3.*N_phi_trans)/(pba->Omega0_g+pba->Omega0_ur);
     }
     else{
@@ -1039,7 +1041,7 @@ int input_read_parameters(
       if((strstr(string1,"y") != NULL) || (strstr(string1,"Y") != NULL)){
         pba->attractor_ic_scf = _TRUE_;
         if (pba->scf_parameters[0] >= 0.)
-    	pba->y_phi_ini_scf = 5.*pba->theta_phi_ini_scf;
+    	pba->y_phi_ini_scf = 5.*pba->theta_phi_ini_scf*(1.-pba->scf_parameters[0]*pba->Omega_phi_ini_scf/72.);
         else
         pba->y_phi_ini_scf = pow(8.,0.5);
         }
