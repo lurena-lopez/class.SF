@@ -2516,8 +2516,6 @@ int perturb_prepare_output(struct background * pba,
       /* Scalar field scf */
       class_store_columntitle(ppt->scalar_titles, "delta_scf", pba->has_scf);
       class_store_columntitle(ppt->scalar_titles, "theta_scf", pba->has_scf);
-      class_store_columntitle(ppt->scalar_titles, "alpha_scf", pba->has_scf);
-      class_store_columntitle(ppt->scalar_titles, "vartheta_scf", pba->has_scf);
       class_store_columntitle(ppt->scalar_titles, "omega_scf", pba->has_scf);
         class_store_columntitle(ppt->scalar_titles, "delta0_scf", pba->has_scf);
         class_store_columntitle(ppt->scalar_titles, "delta1_scf", pba->has_scf);
@@ -3084,8 +3082,6 @@ int perturb_vector_init(
 
     class_define_index(ppv->index_pt_phi_scf,pba->has_scf,index_pt,1); /* scalar field perturbation */
     class_define_index(ppv->index_pt_phi_prime_scf,pba->has_scf,index_pt,1); /* scalar field velocity perturbation */
-    class_define_index(ppv->index_pt_alpha_scf,pba->has_scf,index_pt,1); /* scalar field density contrast ratio */
-    class_define_index(ppv->index_pt_vartheta_scf,pba->has_scf,index_pt,1); /* scalar field angular residual variable 'vartheta-theta' */
     class_define_index(ppv->index_pt_omega_scf,pba->has_scf,index_pt,1); /* scalar field oscillating frequency */
     class_define_index(ppv->index_pt_delta0_scf,pba->has_scf,index_pt,1); /* scalar field first density contrast */
     class_define_index(ppv->index_pt_delta1_scf,pba->has_scf,index_pt,1); /* scalar field second density contrast */
@@ -3500,12 +3496,6 @@ int perturb_vector_init(
         ppv->y[ppv->index_pt_phi_prime_scf] =
           ppw->pv->y[ppw->pv->index_pt_phi_prime_scf];
 		
-	    ppv->y[ppv->index_pt_alpha_scf] =
-          ppw->pv->y[ppw->pv->index_pt_alpha_scf];
-	
-        ppv->y[ppv->index_pt_vartheta_scf] =
-          ppw->pv->y[ppw->pv->index_pt_vartheta_scf];
-	
         ppv->y[ppv->index_pt_omega_scf] =
           ppw->pv->y[ppw->pv->index_pt_omega_scf];
           
@@ -4254,9 +4244,6 @@ int perturb_initial_conditions(struct precision * ppr,
            a) Attractor solution around the critical point of the perturbation equations, or
            b) Initial perturbations can be set to zero, it should reach the attractor soon enough.
            TAKE a) for real, and take b) for comparisons. */
-          
-          ppw->pv->y[ppw->pv->index_pt_vartheta_scf] = 0.*theta_phi/6.;
-          ppw->pv->y[ppw->pv->index_pt_alpha_scf] = 0.*log(-(3./7.)*ppw->pv->y[ppw->pv->index_pt_delta_g]*sin(0.5*theta_phi));
           
           ppw->pv->y[ppw->pv->index_pt_delta0_scf] = (3./7.)*ppw->pv->y[ppw->pv->index_pt_delta_g]*sin(0.5*theta_phi)*sin(theta_phi/12.);
           ppw->pv->y[ppw->pv->index_pt_delta1_scf] = (3./7.)*ppw->pv->y[ppw->pv->index_pt_delta_g]*sin(0.5*theta_phi)*cos(theta_phi/12.);
@@ -5332,7 +5319,7 @@ int perturb_total_stress_energy(
   double rho_relativistic;
   double rho_dr_over_f;
   double delta_rho_scf=0., delta_p_scf=0., rho_plus_p_theta_scf=0., delta0_scf=0., delta1_scf=0., psi;
-  double theta_phi_scf, y_phi_scf, rho_scf, vartheta_scf, alpha_scf;
+  double theta_phi_scf, y_phi_scf, rho_scf;
 
   /** - wavenumber and scale factor related quantities */
 
@@ -5552,20 +5539,13 @@ int perturb_total_stress_energy(
       theta_phi_scf = ppw->pvecback[pba->index_bg_theta_phi_scf];
       y_phi_scf = ppw->pvecback[pba->index_bg_y_phi_scf];
       rho_scf = ppw->pvecback[pba->index_bg_rho_scf];
-      vartheta_scf = y[ppw->pv->index_pt_vartheta_scf];
-      alpha_scf = y[ppw->pv->index_pt_alpha_scf];
       delta0_scf = y[ppw->pv->index_pt_delta0_scf];
       delta1_scf = y[ppw->pv->index_pt_delta1_scf];
 
       if (ppt->gauge == synchronous){
-          /* Version alpha/vartheta or delta0/delta1 */
-      delta_rho_scf = rho_scf*delta0_scf;//-rho_scf*exp(alpha_scf)*sin(0.5*vartheta_scf);
-      delta_p_scf = rho_scf*(delta1_scf*sin_scf(pba,theta_phi_scf)-delta0_scf*cos_scf(pba,theta_phi_scf));//exp(alpha_scf)*sin_scf(pba,theta_phi_scf-0.5*vartheta_scf);
-      rho_plus_p_theta_scf = k*k*rho_scf*(-delta0_scf*sin_scf(pba,theta_phi_scf)+delta1_scf*(1.-cos_scf(pba,theta_phi_scf)))/(a*ppw->pvecback[pba->index_bg_H]*y_phi_scf);
-          /*rho_plus_p_theta_scf = -2.*k*k*rho_scf*exp(alpha_scf)
-          *(cos(0.5*vartheta_scf)-cos_scf(pba,theta_phi_scf-0.5*vartheta_scf))
-          /(a*ppw->pvecback[pba->index_bg_H]*y_phi_scf);*/
-
+          /* Version delta0/delta1 */
+      delta_rho_scf = rho_scf*delta0_scf;
+      delta_p_scf = rho_scf*(delta1_scf*sin_scf(pba,theta_phi_scf)-delta0_scf*cos_scf(pba,theta_phi_scf));      rho_plus_p_theta_scf = k*k*rho_scf*(-delta0_scf*sin_scf(pba,theta_phi_scf)+delta1_scf*(1.-cos_scf(pba,theta_phi_scf)))/(a*ppw->pvecback[pba->index_bg_H]*y_phi_scf);
       }
       else{
         /* equation for psi */
@@ -6105,11 +6085,10 @@ int perturb_sources(
     /* delta_scf */
     if (ppt->has_source_delta_scf == _TRUE_) {
       if (ppt->gauge == synchronous){
-          delta_scf = y[ppw->pv->index_pt_delta0_scf];//-exp(y[ppw->pv->index_pt_alpha_scf])*sin(0.5*y[ppw->pv->index_pt_vartheta_scf]);
-
+          delta_scf = y[ppw->pv->index_pt_delta0_scf];
       }
       else{
-	delta_scf = y[ppw->pv->index_pt_delta0_scf];//-exp(y[ppw->pv->index_pt_alpha_scf])*sin(0.5*y[ppw->pv->index_pt_vartheta_scf]);
+	delta_scf = y[ppw->pv->index_pt_delta0_scf];
       }
       _set_source_(ppt->index_tp_delta_scf) = delta_scf;
     }
@@ -6174,10 +6153,8 @@ int perturb_sources(
         rho_plus_p_theta_scf = k*k*ppw->pvecback[pba->index_bg_rho_scf]*(-y[ppw->pv->index_pt_delta0_scf]*sin_scf(pba,ppw->pvecback[pba->index_bg_theta_phi_scf])
         +y[ppw->pv->index_pt_delta1_scf]*(1.-cos_scf(pba,ppw->pvecback[pba->index_bg_theta_phi_scf])))
                                             /(a_rel*ppw->pvecback[pba->index_bg_H]*ppw->pvecback[pba->index_bg_y_phi_scf]);
-                                            
-      //rho_plus_p_theta_scf = (k*k/a_rel)*ppw->pvecback[pba->index_bg_rho_scf]*exp(y[ppw->pv->index_pt_alpha_scf])
-	//*(cos(0.5*y[ppw->pv->index_pt_vartheta_scf])-cos_scf(pba,ppw->pvecback[pba->index_bg_theta_phi_scf]-0.5*y[ppw->pv->index_pt_vartheta_scf]));
-      _set_source_(ppt->index_tp_theta_scf) = rho_plus_p_theta_scf/
+        
+        _set_source_(ppt->index_tp_theta_scf) = rho_plus_p_theta_scf/
         (pvecback[pba->index_bg_rho_scf]+pvecback[pba->index_bg_p_scf]);
     }
 
@@ -6294,8 +6271,7 @@ int perturb_print_variables(double tau,
   double delta_dcdm=0.,theta_dcdm=0.;
   double delta_dr=0.,theta_dr=0.,shear_dr=0., f_dr=1.0;
   double delta_ur=0.,theta_ur=0.,shear_ur=0.,l4_ur=0.;
-  double delta_scf=0., theta_scf=0., theta_phi_scf=0., y_phi_scf=0.;
-  double alpha_scf=0., vartheta_scf=0., omega_scf=0.;
+  double delta_scf=0., theta_scf=0., theta_phi_scf=0., y_phi_scf=0., omega_scf=0.;
   double delta0_scf=0., delta1_scf=0.;
   /** - ncdm sector begins */
   int n_ncdm;
@@ -6515,17 +6491,13 @@ int perturb_print_variables(double tau,
           /** Use of auxiliar variables */
           theta_phi_scf = pvecback[pba->index_bg_theta_phi_scf];
           y_phi_scf = pvecback[pba->index_bg_y_phi_scf];
-          vartheta_scf = y[ppw->pv->index_pt_vartheta_scf];
-          alpha_scf = y[ppw->pv->index_pt_alpha_scf];
           omega_scf = y[ppw->pv->index_pt_omega_scf];
           delta0_scf = y[ppw->pv->index_pt_delta0_scf];
           delta1_scf = y[ppw->pv->index_pt_delta1_scf];
           
-          delta_scf = delta0_scf;//-exp(alpha_scf)*sin(0.5*vartheta_scf);
+          delta_scf = delta0_scf;
                 /** Approximate expression for the velocity gradient alone. Just for the output, no consequences for the integration of the equations of motion. */
           theta_scf = k*k*(delta1_scf*(1.-cos_scf(pba,theta_phi_scf))-delta0_scf*sin_scf(pba,theta_phi_scf))/(a*H*y_phi_scf);
-          /* -(k*k/a)*exp(alpha_scf)*pvecback[pba->index_bg_rho_scf]
-          *(cos(0.5*vartheta_scf)+cos_scf(pba,theta_phi_scf-0.5*vartheta_scf))/(H*y_phi_scf);*/
       }
       else{
           delta_scf = delta0_scf; /*1./3.*
@@ -6639,8 +6611,6 @@ int perturb_print_variables(double tau,
     /* Scalar field scf*/
     class_store_double(dataptr, delta_scf, pba->has_scf, storeidx);
     class_store_double(dataptr, theta_scf, pba->has_scf, storeidx);
-    class_store_double(dataptr, alpha_scf, pba->has_scf, storeidx);
-    class_store_double(dataptr, vartheta_scf, pba->has_scf, storeidx);
     class_store_double(dataptr, omega_scf, pba->has_scf, storeidx);
     class_store_double(dataptr, delta0_scf, pba->has_scf, storeidx);
     class_store_double(dataptr, delta1_scf, pba->has_scf, storeidx);
@@ -6866,7 +6836,7 @@ int perturb_derivs(double tau,
   double f_dr, fprime_dr;
 
   /* for use with scalar field */
-  double Omega_phi_scf,theta_phi_scf, y1_phi_scf, vartheta_scf, alpha_scf, omega_scf, delta0_scf, delta1_scf;
+  double Omega_phi_scf,theta_phi_scf, y1_phi_scf, omega_scf, delta0_scf, delta1_scf;
 
   /** - rename the fields of the input structure (just to avoid heavy notations) */
 
@@ -7305,26 +7275,10 @@ int perturb_derivs(double tau,
       Omega_phi_scf = pvecback[pba->index_bg_Omega_phi_scf];
       theta_phi_scf = pvecback[pba->index_bg_theta_phi_scf];
       y1_phi_scf = pvecback[pba->index_bg_y_phi_scf];
-      vartheta_scf = y[pv->index_pt_vartheta_scf];
-      alpha_scf = y[pv->index_pt_alpha_scf];
       omega_scf = y[pv->index_pt_omega_scf];
       delta0_scf = y[pv->index_pt_delta0_scf];
       delta1_scf = y[pv->index_pt_delta1_scf];
       
-      /** ---> Equations of motion for alpha */
-        dy[pv->index_pt_alpha_scf] = 0.;
-        /*-a_prime_over_a*(1.5*(cos_scf(pba,theta_phi_scf-vartheta_scf)+cos_scf(pba,theta_phi_scf))
-						   +omega_scf*sin_scf(pba,theta_phi_scf-vartheta_scf))
-                           +metric_continuity*(sin(0.5*vartheta_scf)+sin_scf(pba,theta_phi_scf-0.5*vartheta_scf) //metric_continuity = h'/2
-                           )/exp(alpha_scf);*/
-      
-      /** ---> Equations of motion for vartheta */
-        dy[pv->index_pt_vartheta_scf] = 0.;
-        /*-a_prime_over_a*(3.*(sin_scf(pba,theta_phi_scf)+sin_scf(pba,theta_phi_scf-vartheta_scf))
-      +2.*(1.-cos_scf(pba,theta_phi_scf-vartheta_scf))*omega_scf)
-      +2.*metric_continuity*(cos(0.5*vartheta_scf)-cos_scf(pba,theta_phi_scf-0.5*vartheta_scf) //metric_continuity = h'/2
-      )/exp(alpha_scf);*/
-
       /** ---> Equations of motion for omega */
         dy[pv->index_pt_omega_scf] = a_prime_over_a*(1.5*pvecback[pba->index_bg_w_tot]-0.5-y2_phi_scf(pba,Omega_phi_scf,theta_phi_scf,y1_phi_scf)*
         pow(Omega_phi_scf,0.5)*sin_scf(pba,0.5*theta_phi_scf)/y1_phi_scf)*y[pv->index_pt_omega_scf];
