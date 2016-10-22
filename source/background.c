@@ -397,7 +397,7 @@ int background_functions(
     pvecback[pba->index_bg_Omega_phi_scf] = Omega_phi; // value of the scalar field Omega_phi
     pvecback[pba->index_bg_theta_phi_scf] = theta_phi; // value of the scalar field theta_phi
     pvecback[pba->index_bg_y_phi_scf] = y1_phi; // value of the scalar field y1_phi
-    pvecback[pba->index_bg_rho_scf] = Omega_phi*rho_tot/(1.-Omega_phi); // energy of the scalar field
+    pvecback[pba->index_bg_rho_scf] = exp(Omega_phi)*rho_tot/(1.-exp(Omega_phi)); // energy of the scalar field
     pvecback[pba->index_bg_p_scf] = -cos_scf(pba,theta_phi)*pvecback[pba->index_bg_rho_scf];// pressure of the scalar field
     rho_m += pvecback[pba->index_bg_rho_scf]; // add scalar field energy density into the total matter budget
     rho_tot += pvecback[pba->index_bg_rho_scf]; // add scalar field density to the total one
@@ -1670,7 +1670,7 @@ int background_solve(
     if (pba->has_scf == _TRUE_){
       printf(" Scalar field details:\n");
       printf(" -> Omega_scf = %g, wished = %g\n",
-	     pvecback[pba->index_bg_Omega_phi_scf], pba->Omega0_scf);
+	     exp(pvecback[pba->index_bg_Omega_phi_scf]), pba->Omega0_scf);
       printf(" -> Mass_scf = %5.4e [1/Mpc], %5.4e [eV], %5.4e [H_0]\n",
              0.5*pvecback[pba->index_bg_y_phi_scf]*pvecback[pba->index_bg_H], 3.19696e-30*pvecback[pba->index_bg_y_phi_scf]*pvecback[pba->index_bg_H], 0.5*pvecback[pba->index_bg_y_phi_scf]);//pba->H0);
     }
@@ -2084,13 +2084,16 @@ int background_derivs(
       + y[pba->index_bi_a]*dV_scf(pba,y[pba->index_bi_phi_scf])) ;*/
 
     dy[pba->index_bi_Omega_phi_scf] = 3.*y[pba->index_bi_a]*pvecback[pba->index_bg_H]*
-      y[pba->index_bi_Omega_phi_scf]*(pvecback[pba->index_bg_w_tot]+cos_scf(pba,y[pba->index_bi_theta_phi_scf]));
+      (pvecback[pba->index_bg_w_tot]+cos_scf(pba,y[pba->index_bi_theta_phi_scf]));
+      
     dy[pba->index_bi_theta_phi_scf] = y[pba->index_bi_a]*pvecback[pba->index_bg_H]*
       (-3.*sin_scf(pba,y[pba->index_bi_theta_phi_scf])+y[pba->index_bi_y_phi_scf]);
+      
     dy[pba->index_bi_y_phi_scf] = y[pba->index_bi_a]*pvecback[pba->index_bg_H]*
       (1.5*(1.+pvecback[pba->index_bg_w_tot])*y[pba->index_bi_y_phi_scf]
        + y2_phi_scf(pba,y[pba->index_bi_Omega_phi_scf],y[pba->index_bi_theta_phi_scf],y[pba->index_bi_y_phi_scf])*
-       pow(y[pba->index_bi_Omega_phi_scf],0.5)*sin_scf(pba,0.5*y[pba->index_bi_theta_phi_scf]));
+       exp(0.5*y[pba->index_bi_Omega_phi_scf])*sin_scf(pba,0.5*y[pba->index_bi_theta_phi_scf]));
+       //pow(y[pba->index_bi_Omega_phi_scf],0.5)*sin_scf(pba,0.5*y[pba->index_bi_theta_phi_scf]));
   }
 
 
@@ -2149,7 +2152,7 @@ double y2_phi_scf(struct background *pba,
 		  ) {
   double scf_lambda = pba->scf_parameters[0];
   //General expression for: axion (lambda >0), quadratic (lambda =0), cosh (lambda < 0)
-  return  scf_lambda*pow(Omega_phi,0.5)*cos_scf(pba,0.5*theta);
+  return  scf_lambda*exp(0.5*Omega_phi)*cos_scf(pba,0.5*theta);
 }
 
 /**
@@ -2163,11 +2166,11 @@ double phi_scf(
   double scf_lambda = pba->scf_parameters[0];
   // Axion case
   if (scf_lambda != 0.){
-    return 0.5*_PI_-atan(2.*pow(scf_lambda*Omega_phi,0.5)*cos(0.5*theta_phi)/y1_phi);
+    return 0.5*_PI_-atan(2.*pow(scf_lambda*exp(Omega_phi),0.5)*cos(0.5*theta_phi)/y1_phi);
   }
   else{
     // Quadratic case
-    return -2.*pow(6.*Omega_phi,0.5)*cos(0.5*theta_phi)/y1_phi;
+    return -2.*pow(6.*exp(Omega_phi),0.5)*cos(0.5*theta_phi)/y1_phi;
   }
 }
 
@@ -2176,7 +2179,7 @@ double phi_prime_scf(
 		     double Omega_phi,
 		     double theta_phi,
 		     double y1_phi) {
-  return 2.*pow(6.*Omega_phi,0.5)*sin(0.5*theta_phi)/y1_phi;
+  return 2.*pow(6.*exp(Omega_phi),0.5)*sin(0.5*theta_phi)/y1_phi;
 }
 
 double V_scf(
@@ -2185,7 +2188,7 @@ double V_scf(
              double theta_phi,
              double y1_phi,
              double Hubble_phi) {
-    return  3.*pow(Hubble_phi*cos(0.5*theta_phi),2.)*Omega_phi;
+    return  3.*pow(Hubble_phi*cos(0.5*theta_phi),2.)*exp(Omega_phi);
 }
 
 double dV_scf(
@@ -2194,7 +2197,7 @@ double dV_scf(
               double theta_phi,
               double y1_phi,
               double Hubble_phi) {
-    return -pow(1.5*Omega_phi,0.5)*pow(Hubble_phi,2.)*y1_phi*cos(0.5*theta_phi);
+    return -pow(1.5*exp(Omega_phi),0.5)*pow(Hubble_phi,2.)*y1_phi*cos(0.5*theta_phi);
 }
 
 double ddV_scf(
@@ -2204,6 +2207,6 @@ double ddV_scf(
                double y1_phi,
                double Hubble_phi) {
     return pow(Hubble_phi,2.)*(0.25*pow(y1_phi,2.)-
-                               0.5*pow(Omega_phi,0.5)*cos(0.5*theta_phi)
+                               0.5*pow(exp(Omega_phi),0.5)*cos(0.5*theta_phi)
                                *y2_phi_scf(pba,Omega_phi,theta_phi,y1_phi));
 }
