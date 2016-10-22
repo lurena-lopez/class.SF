@@ -336,7 +336,7 @@ int perturb_init(
       if (ppt->perturbations_verbose > 1)
         printf("Evolving ic %d/%d\n",index_ic+1,ppt->ic_size[index_md]);
 
-        if (ppt->perturbations_verbose > 1)
+      if (ppt->perturbations_verbose > 1)
           printf("evolving %d wavenumbers\n",ppt->k_size[index_md]);
 
       abort = _FALSE_;
@@ -4034,7 +4034,7 @@ int perturb_initial_conditions(struct precision * ppr,
   /** --> Declare local variables */
 
   double a,a_prime_over_a;
-  double delta_ur=0.,theta_ur=0.,shear_ur=0.,l3_ur=0.,eta=0.,delta_cdm=0.,alpha, alpha_prime;
+    double delta_ur=0.,theta_ur=0.,shear_ur=0.,l3_ur=0.,eta=0.,delta_cdm=0.,alpha, alpha_prime;
   double delta_dr=0;
   double q,epsilon,k2;
   int index_q,n_ncdm,idx;
@@ -4048,7 +4048,7 @@ int perturb_initial_conditions(struct precision * ppr,
   double s2_squared;
 
   /** Auxiliar variables for scalar field */
-  double Omega_phi, theta_phi, y1_phi;
+  double theta_phi, y1_phi;
 
   if (_scalars_) {
 
@@ -4206,7 +4206,7 @@ int perturb_initial_conditions(struct precision * ppr,
       if (pba->has_scf == _TRUE_) {
        
           /** Scalar field variables from the background */
-          Omega_phi = ppw->pvecback[pba->index_bg_Omega_phi_scf];
+          //Omega_phi = ppw->pvecback[pba->index_bg_Omega_phi_scf];
           theta_phi = ppw->pvecback[pba->index_bg_theta_phi_scf];
           y1_phi = ppw->pvecback[pba->index_bg_y_phi_scf];
           
