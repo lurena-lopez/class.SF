@@ -1025,8 +1025,6 @@ int input_read_parameters(
     pba->theta_phi_ini_scf = 1.910633;
     pba->Omega_phi_ini_scf = -pba->scf_parameters[pba->scf_tuning_index]*12./pba->scf_parameters[0];
     }
-    pba->phi_ini_scf = 0.0;
-    pba->phi_prime_ini_scf = 0.0;
 
     /** The initial condition for y1_phi_ini corresponds, or not, to the attractor value */
     class_call(parser_read_string(pfc,
@@ -2842,9 +2840,6 @@ int input_default_params(
   pba->scf_parameters = NULL;
   pba->scf_parameters_size = 0;
   pba->scf_tuning_index = 0;
-  //MZ: initial conditions are as multiplicative factors of the radiation attractor values
-  pba->phi_ini_scf = 0.;
-  pba->phi_prime_ini_scf = 0.;
   pba->Omega_phi_ini_scf = 0.;
   pba->theta_phi_ini_scf = 0.;
   pba->y_phi_ini_scf = 0.;
