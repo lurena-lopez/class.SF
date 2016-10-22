@@ -82,7 +82,7 @@ from nose_parameterized import parameterized
 
 # To avoid testing for differences between synchronous and Newtonian gauge, set
 # this flag to False
-COMPARE_OUTPUT = True
+COMPARE_OUTPUT = False
 
 # Dictionary of models to test the wrapper against. Each of these scenario will
 # be run against all the possible output choices (nothing, tCl, mPk, etc...),

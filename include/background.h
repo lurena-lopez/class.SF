@@ -68,8 +68,6 @@ struct background
   double Omega_ini_dcdm;    /**< \f$ \Omega_{ini,dcdm} \f$: rescaled initial value for dcdm density (see 1407.2418 for definitions) */
   double Omega0_scf;        /**< \f$ \Omega_{0 scf} \f$ : scalar field */
   short attractor_ic_scf;   /** < whether the scalar field has attractor initial conditions */
-  double phi_ini_scf;       /**< \f$ \phi(t_0) \f$ : scalar field initial value */
-  double phi_prime_ini_scf; /**< \f$ d\phi(t_0)/d\tau \f$ : scalar field initial derivative wrt conformal time */
 
   double Omega_phi_ini_scf;        /**< \f$ \Omega_{0 scf} \f$ : scalar field 2*/
   double theta_phi_ini_scf;       /* Angular internal variable */
@@ -78,10 +76,6 @@ struct background
   double * scf_parameters;  /**< list of parameters describing the scalar field potential */
   int scf_parameters_size;  /**< size of scf_parameters */
   int scf_tuning_index;     /**< index in scf_parameters used for tuning */
-  //double scf_lambda; /**< \f$ \lambda \f$ : scalar field exponential potential slope */
-  //double scf_alpha;  /**< \f$ \alpha \f$ : Albrecht-Skordis polynomial slope */
-  //double scf_B; /**< \f$ \alpha \f$ : Albrecht-Skordis field shift */
-  //double scf_A; /**< \f$ \alpha \f$ : Albrecht-Skordis offset */
 
   double Omega0_k; /**< \f$ \Omega_{0_k} \f$: curvature contribution */
 
@@ -163,11 +157,6 @@ struct background
   int index_bg_rho_dcdm;      /**< dcdm density */
   int index_bg_rho_dr;        /**< dr density */
 
-  int index_bg_phi_scf;       /**< scalar field value */
-  int index_bg_phi_prime_scf; /**< scalar field derivative wrt conformal time */
-  int index_bg_V_scf;         /**< scalar field potential V */
-  int index_bg_dV_scf;        /**< scalar field potential derivative V' */
-  int index_bg_ddV_scf;       /**< scalar field potential second derivative V'' */
   int index_bg_rho_scf;       /**< scalar field energy density */
   int index_bg_p_scf;         /**< scalar field pressure */
 
@@ -239,8 +228,6 @@ struct background
   int index_bi_a;       /**< {B} scale factor */
   int index_bi_rho_dcdm;/**< {B} dcdm density */
   int index_bi_rho_dr;  /**< {B} dr density */
-  int index_bi_phi_scf;       /**< {B} scalar field value */
-  int index_bi_phi_prime_scf; /**< {B} scalar field derivative wrt conformal time */
   int index_bi_Omega_phi_scf; /**< {B} scalar field density parameter */
   int index_bi_theta_phi_scf;       /**< {B} scalar field angular variable */
   int index_bi_y_phi_scf; /**< {B} scalar field y_1 */
@@ -495,50 +482,6 @@ extern "C" {
 		    double theta,
 		    double y1_phi
 		    );
-
-  double phi_scf(
-		 struct background *pba,
-		 double Omega_phi,
-		 double theta_phi,
-		 double y1_phi
-		 );
-
-  double phi_prime_scf(
-		     struct background *pba,
-		     double Omega_phi,
-		     double theta_phi,
-		     double y1_phi
-		       );
-
-  double V_scf(
-               struct background *pba,
-               double Omega_phi,
-	       double theta_phi,
-	       double y1_phi,
-	       double Hubble_phi
-               );
-
-  double dV_scf(
-		struct background *pba,
-		double Omega_phi,
-		double theta_phi,
-		double y1_phi,
-		double Hubble_phi
-		);
-
-  double ddV_scf(
-                 struct background *pba,
-                 double Omega_phi,
-		 double theta_phi,
-		 double y1_phi,
-		 double Hubble_phi
-                 );
-
-  double phidot_Vprime_scf(
-               struct background *pba,
-	       double theta_phi,
-	       double y1_phi,
-	       double Hubble_phi);
 
   /** Coupling between scalar field and matter **/
   double Q_scf(

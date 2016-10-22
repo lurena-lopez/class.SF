@@ -1016,17 +1016,15 @@ int input_read_parameters(
     pba->theta_phi_ini_scf = pba->scf_parameters[1];
     N_phi_trans = 0.5*(log(_PI_/pba->theta_phi_ini_scf)-0.5*log(9.+pow(_PI_,2))+0.5*log(9.+pow(pba->theta_phi_ini_scf,2)));
     a_phi_com = 5.e-14*pba->scf_parameters[0]*pba->Omega0_scf/(72.*(pba->Omega0_g+pba->Omega0_ur));
-        if (exp(N_phi_trans)*a_phi_com > 0.1) {
+        if (exp(N_phi_trans)*a_phi_com > 1.0) {
             N_phi_trans = (2./3.)*N_phi_trans-(1./3.)*log(a_phi_com);
         }
-    pba->Omega_phi_ini_scf = pba->scf_parameters[pba->scf_tuning_index]*pba->Omega0_scf*5.e-14*exp(-3.*N_phi_trans)/(pba->Omega0_g+pba->Omega0_ur);
+    pba->Omega_phi_ini_scf = pba->scf_parameters[pba->scf_tuning_index]+log(pba->Omega0_scf*5.e-14*exp(-3.*N_phi_trans)/(pba->Omega0_g+pba->Omega0_ur));
     }
     else{
     pba->theta_phi_ini_scf = 1.910633;
     pba->Omega_phi_ini_scf = -pba->scf_parameters[pba->scf_tuning_index]*12./pba->scf_parameters[0];
     }
-    pba->phi_ini_scf = 0.0;
-    pba->phi_prime_ini_scf = 0.0;
 
     /** The initial condition for y1_phi_ini corresponds, or not, to the attractor value */
     class_call(parser_read_string(pfc,
@@ -1041,7 +1039,7 @@ int input_read_parameters(
       if((strstr(string1,"y") != NULL) || (strstr(string1,"Y") != NULL)){
         pba->attractor_ic_scf = _TRUE_;
         if (pba->scf_parameters[0] >= 0.)
-    	pba->y_phi_ini_scf = 5.*pba->theta_phi_ini_scf*(1.-pba->scf_parameters[0]*pba->Omega_phi_ini_scf/72.);
+    	pba->y_phi_ini_scf = 5.*pba->theta_phi_ini_scf*(1.-pba->scf_parameters[0]*exp(pba->Omega_phi_ini_scf)/72.);
         else
         pba->y_phi_ini_scf = pow(8.,0.5);
         }
@@ -2842,9 +2840,6 @@ int input_default_params(
   pba->scf_parameters = NULL;
   pba->scf_parameters_size = 0;
   pba->scf_tuning_index = 0;
-  //MZ: initial conditions are as multiplicative factors of the radiation attractor values
-  pba->phi_ini_scf = 0.;
-  pba->phi_prime_ini_scf = 0.;
   pba->Omega_phi_ini_scf = 0.;
   pba->theta_phi_ini_scf = 0.;
   pba->y_phi_ini_scf = 0.;

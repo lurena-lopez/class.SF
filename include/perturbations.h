@@ -396,8 +396,8 @@ struct perturb_vector
   int index_pt_theta_dcdm; /**< dcdm velocity */
   int index_pt_delta_fld;  /**< dark energy density */
   int index_pt_theta_fld;  /**< dark energy velocity */
-  int index_pt_phi_scf;  /**< scalar field density */
-  int index_pt_phi_prime_scf;  /**< scalar field velocity */
+  //int index_pt_phi_scf;  /**< scalar field density */
+  //int index_pt_phi_prime_scf;  /**< scalar field velocity */
   int index_pt_omega_scf;  /**< scalar field frequency */
   int index_pt_delta0_scf;  /**< scalar field first density contrast */
   int index_pt_delta1_scf;  /**< scalar field second desnity contrast */
