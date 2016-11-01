@@ -1016,7 +1016,7 @@ int input_read_parameters(
     pba->theta_phi_ini_scf = pba->scf_parameters[1];
     N_phi_trans = 0.5*(log(_PI_/pba->theta_phi_ini_scf)-0.5*log(9.+pow(_PI_,2))+0.5*log(9.+pow(pba->theta_phi_ini_scf,2)));
     a_phi_com = 5.e-14*pba->scf_parameters[0]*pba->Omega0_scf/(72.*(pba->Omega0_g+pba->Omega0_ur));
-        if (exp(N_phi_trans)*a_phi_com > 1.0) {
+        if (exp(N_phi_trans)*a_phi_com > 1.) {
             N_phi_trans = (2./3.)*N_phi_trans-(1./3.)*log(a_phi_com);
         }
     pba->Omega_phi_ini_scf = pba->scf_parameters[pba->scf_tuning_index]+log(pba->Omega0_scf*5.e-14*exp(-3.*N_phi_trans)/(pba->Omega0_g+pba->Omega0_ur));
