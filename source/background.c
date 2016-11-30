@@ -1810,9 +1810,8 @@ int background_initial_conditions(
     }
   }
 
-  /** - Fix initial values of scalar field quntities
-   * set directly in the radiation attractor => fixes the units in terms of rho_ur
-   * - is rho_ur all there is early on?
+  /** - Fix initial values of scalar field quantities
+   * set directly in the radiation attractor
    */
   if(pba->has_scf == _TRUE_){
     pvecback_integration[pba->index_bi_Omega_phi_scf] = pba->Omega_phi_ini_scf;
@@ -1827,7 +1826,7 @@ int background_initial_conditions(
 
   /* Just checking that our initial time indeed is deep enough in the radiation
      dominated regime */
-  class_test(fabs(pvecback[pba->index_bg_Omega_r]-1.) > ppr->tol_initial_Omega_r,
+  class_test(fabs(pvecback[pba->index_bg_Omega_r] + exp(pba->Omega_phi_ini_scf)-1.) > ppr->tol_initial_Omega_r,
 	     pba->error_message,
 	     "Omega_r = %e, not close enough to 1. Decrease a_ini_over_a_today_default in order to start from radiation domination.",
 	     pvecback[pba->index_bg_Omega_r]);
