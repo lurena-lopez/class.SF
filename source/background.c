@@ -1826,7 +1826,8 @@ int background_initial_conditions(
 
   /* Just checking that our initial time indeed is deep enough in the radiation
      dominated regime */
-  class_test(fabs(pvecback[pba->index_bg_Omega_r] + exp(pba->Omega_phi_ini_scf)-1.) > ppr->tol_initial_Omega_r,
+                                      /*class_test(fabs(pvecback[pba->index_bg_Omega_r] + exp(pba->Omega_phi_ini_scf)-1.) > ppr->tol_initial_Omega_r,*/
+  class_test(fabs(pvecback[pba->index_bg_Omega_r]-1.) > ppr->tol_initial_Omega_r,
 	     pba->error_message,
 	     "Omega_r = %e, not close enough to 1. Decrease a_ini_over_a_today_default in order to start from radiation domination.",
 	     pvecback[pba->index_bg_Omega_r]);
