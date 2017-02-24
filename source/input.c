@@ -1014,12 +1014,26 @@ int input_read_parameters(
     /** Calculate pivot value of Omega_phi_init for the calculation of appropriate initial conditions */
     if (pba->scf_parameters[0] >= 0.){
     pba->theta_phi_ini_scf = pba->scf_parameters[1];
-    N_phi_trans = 0.5*(log(_PI_/pba->theta_phi_ini_scf)-0.5*log(9.+pow(_PI_,2))+0.5*log(9.+pow(pba->theta_phi_ini_scf,2)));
+    //aosc = pow((0.5*_PI_/pba->theta_phi_ini_scf)/pow(1.+pow(_PI_,2)/36.,0.5),0.5);
+    N_phi_trans = 0.5*log(0.5*_PI_/pba->theta_phi_ini_scf)-0.25*log(1.+pow(_PI_,2)/36.);
+        /**N_phi_trans = 0.5*(log(_PI_/pba->theta_phi_ini_scf)-0.5*log(9.+pow(_PI_,2))+0.5*log(9.+pow(pba->theta_phi_ini_scf,2)));**/
     a_phi_com = 5.e-14*pba->scf_parameters[0]*pba->Omega0_scf/(72.*(pba->Omega0_g+pba->Omega0_ur));
         if (exp(N_phi_trans)*a_phi_com > 1.) {
             N_phi_trans = (2./3.)*N_phi_trans-(1./3.)*log(a_phi_com);
         }
+        /** Solve the cubic equation
+        if (pba->scf_parameters[0] > 0.) {
+            aguess1 = aosc;
+            b3 = 1.e-14*pba->scf_parameters[0]*pba->Omega0_scf/(72.*(pba->Omega0_g+pba->Omega0_ur));
+        for (i=0; i < 30; i++) {
+            aguess2 = aguess1 - (b3*pow(aguess1,3.)+pow(aguess1,2.)-pow(aosc,2.))/(3.*b3*pow(aguess1,2.)+2.*aguess1);
+        if (abs(aguess2-aguess1)/aguess1 < 1.e-4) break;
+        aguess1 = aguess2;
+            }
+            aosc = aguess2;
+        } **/
     pba->Omega_phi_ini_scf = pba->scf_parameters[pba->scf_tuning_index]+log(pba->Omega0_scf*5.e-14*exp(-3.*N_phi_trans)/(pba->Omega0_g+pba->Omega0_ur));
+    //pba->Omega_phi_ini_scf = pba->scf_parameters[pba->scf_tuning_index]+log(pba->Omega0_scf*5.e-14*pow(aosc,-3.)/(pba->Omega0_g+pba->Omega0_ur));
     }
     else{
     pba->theta_phi_ini_scf = 1.910633;
