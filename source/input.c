@@ -517,7 +517,7 @@ int input_read_parameters(
   double param1,param2,param3;
   int N_ncdm=0,n,entries_read;
   int int1,fileentries;
-  //double N_phi_trans,a_phi_com;
+  double theta_ini,Omega_ini;
   double aosc,aosc3,b3,aguess1,aguess2;
   double fnu_factor;
   double * pointer1;
@@ -1014,13 +1014,27 @@ int input_read_parameters(
     /** - Initial conditions for scalar field variables */
     if (pba->scf_parameters[0] >= 0.){
     /** - Conversion of the boson mass into initial conditions */
-    pba->theta_phi_ini_scf = 0.4*15.64*pba->scf_parameters[1]/(pow(pba->Omega0_g+pba->Omega0_ur,0.5)*pba->H0);
+    theta_ini = 0.4*15.64*pba->scf_parameters[1]/(pow(pba->Omega0_g+pba->Omega0_ur,0.5)*pba->H0);
+    //pba->theta_phi_ini_scf = 0.4*15.64*pba->scf_parameters[1]/(pow(pba->Omega0_g+pba->Omega0_ur,0.5)*pba->H0);
     /** - Solve the cubic equation by Newton-Raphson. It works for lambda >=0 */
-    aosc = pow((0.5*_PI_/pba->theta_phi_ini_scf)/pow(1.+pow(_PI_,2)/36.,0.5),0.5);
+    aosc = pow((0.5*_PI_/theta_ini)/pow(1.+pow(_PI_,2)/36.,0.5),0.5);
     b3 = 1.e-14*pba->scf_parameters[0]*pba->Omega0_scf/(72.*(pba->Omega0_g+pba->Omega0_ur));
     aosc3 = pow(aosc_cubic(aosc,b3),3.);
     /** - Calculate pivot value of Omega_phi_init for the calculation of appropriate initial conditions */
-    pba->Omega_phi_ini_scf = pba->scf_parameters[pba->scf_tuning_index]+log(pba->Omega0_scf*5.e-14/(aosc3*(pba->Omega0_g+pba->Omega0_ur)));
+    Omega_ini = log(pba->Omega0_scf*1.e-14/(aosc3*(pba->Omega0_g+pba->Omega0_ur)));
+    /** Secant method to fix the value of the boson mass */
+       /** if (abs(fmass(5.*theta_ini,Omega_ini)) > 1.e-4){
+            theta1 = theta_ini;
+            Omega1 = Omega_ini;
+            theta2 = pow(pow(m_over_H,2.)-pba->scf_parameters[0]*exp(Omega1),0.5);
+            aosc = pow((0.5*_PI_/theta2)/pow(1.+pow(_PI_,2)/36.,0.5),0.5);
+            aosc3 = pow(aosc_cubic(aosc,b3),3.);
+            Omega2 = log(pba->Omega0_scf*1.e-14/(aosc3*(pba->Omega0_g+pba->Omega0_ur)));
+        } */
+    /** - Calculate pivot value of Omega_phi_init for the calculation of appropriate initial conditions */
+    pba->theta_phi_ini_scf = theta_ini;
+    pba->Omega_phi_ini_scf = pba->scf_parameters[pba->scf_tuning_index]+Omega_ini+log(5.);
+    //pba->Omega_phi_ini_scf = pba->scf_parameters[pba->scf_tuning_index]+log(pba->Omega0_scf*5.e-14/(aosc3*(pba->Omega0_g+pba->Omega0_ur)));
     }
     else{
     pba->theta_phi_ini_scf = 1.910633;
