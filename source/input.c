@@ -1011,12 +1011,13 @@ int input_read_parameters(
     /** - Assign shooting parameter */
     class_read_double("scf_shooting_parameter",pba->scf_parameters[pba->scf_tuning_index]);
 
-    /** Initial conditions for scalar field variables */
-    /** Calculate pivot value of Omega_phi_init for the calculation of appropriate initial conditions */
+    /** - Initial conditions for scalar field variables */
+    /** - Calculate pivot value of Omega_phi_init for the calculation of appropriate initial conditions */
     if (pba->scf_parameters[0] >= 0.){
-    pba->theta_phi_ini_scf = pba->scf_parameters[1];
+    /** - Conversion of the boson mass into initial conditions */
+    pba->theta_phi_ini_scf = 0.4*15.64*pba->scf_parameters[1]/(pow(pba->Omega0_g+pba->Omega0_ur,0.5)*pba->H0);
     aosc = pow((0.5*_PI_/pba->theta_phi_ini_scf)/pow(1.+pow(_PI_,2)/36.,0.5),0.5);
-    /** Solve the cubic equation by Newton-Raphson. It works for lambda >=0 */
+    /** - Solve the cubic equation by Newton-Raphson. It works for lambda >=0 */
     b3 = 1.e-14*pba->scf_parameters[0]*pba->Omega0_scf/(72.*(pba->Omega0_g+pba->Omega0_ur));
     aguess1 = aosc;
     for (i=0; i < 30; i++) {
