@@ -275,7 +275,8 @@ extern "C" {
   int compare_integers (const void * elem1, const void * elem2);
 
   int compare_doubles(const void *a,const void *b);
-
+  
+  double aosc_cubic(double aosc,double b3);
 
 #ifdef __cplusplus
 }

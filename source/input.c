@@ -1012,21 +1012,14 @@ int input_read_parameters(
     class_read_double("scf_shooting_parameter",pba->scf_parameters[pba->scf_tuning_index]);
 
     /** - Initial conditions for scalar field variables */
-    /** - Calculate pivot value of Omega_phi_init for the calculation of appropriate initial conditions */
     if (pba->scf_parameters[0] >= 0.){
     /** - Conversion of the boson mass into initial conditions */
     pba->theta_phi_ini_scf = 0.4*15.64*pba->scf_parameters[1]/(pow(pba->Omega0_g+pba->Omega0_ur,0.5)*pba->H0);
-    aosc = pow((0.5*_PI_/pba->theta_phi_ini_scf)/pow(1.+pow(_PI_,2)/36.,0.5),0.5);
     /** - Solve the cubic equation by Newton-Raphson. It works for lambda >=0 */
+    aosc = pow((0.5*_PI_/pba->theta_phi_ini_scf)/pow(1.+pow(_PI_,2)/36.,0.5),0.5);
     b3 = 1.e-14*pba->scf_parameters[0]*pba->Omega0_scf/(72.*(pba->Omega0_g+pba->Omega0_ur));
-    aguess1 = aosc;
-    for (i=0; i < 30; i++) {
-        aguess2 = aguess1 - (b3*pow(aguess1,3.)+pow(aguess1,2.)-pow(aosc,2.))/(3.*b3*pow(aguess1,2.)+2.*aguess1);
-        if (abs(aguess2-aguess1)/aguess1 < 1.e-4) break;
-        aguess1 = aguess2;
-    //class_test(i > 20,errmsg,"Unable to solve the cubic equation");
-    }
-    aosc3 = pow(aguess2,3.);
+    aosc3 = pow(aosc_cubic(aosc,b3),3.);
+    /** - Calculate pivot value of Omega_phi_init for the calculation of appropriate initial conditions */
     pba->Omega_phi_ini_scf = pba->scf_parameters[pba->scf_tuning_index]+log(pba->Omega0_scf*5.e-14/(aosc3*(pba->Omega0_g+pba->Omega0_ur)));
     }
     else{
@@ -3951,4 +3944,18 @@ int compare_doubles(const void *a,const void *b) {
   else if
     (*x > *y) return 1;
   return 0;
+}
+
+double aosc_cubic(double aosc,
+                  double b3
+               ) {
+    double aguess1 = aosc;
+    double aguess2;
+    int i;
+    for (i=0; i < 30; i++) {
+        aguess2 = aguess1 - (b3*pow(aguess1,3.)+pow(aguess1,2.)-pow(aosc,2.))/(3.*b3*pow(aguess1,2.)+2.*aguess1);
+        if (abs(aguess2-aguess1)/aguess1 < 1.e-4) break;
+        aguess1 = aguess2;
+    }
+    return aguess2;
 }
