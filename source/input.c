@@ -519,6 +519,7 @@ int input_read_parameters(
   int int1,fileentries;
   double theta_ini,Omega_ini;
   double aosc,aosc3,b3,aguess1,aguess2;
+    double theta1,theta2,theta3,Omega1,Omega2,Omega3;
   double fnu_factor;
   double * pointer1;
   char string1[_ARGUMENT_LENGTH_MAX_];
@@ -1023,7 +1024,7 @@ int input_read_parameters(
     /** - Calculate pivot value of Omega_phi_init for the calculation of appropriate initial conditions */
     Omega_ini = log(pba->Omega0_scf*1.e-14/(aosc3*(pba->Omega0_g+pba->Omega0_ur)));
     /** Secant method to fix the value of the boson mass */
-       /** if (pba->scf_parameters[0] > 0.){
+        if (pba->scf_parameters[0] > 0.){
             theta1 = theta_ini;
             Omega1 = Omega_ini;
             theta2 = pow(pow(5.*theta_ini,2.)-4.*pba->scf_parameters[0]*exp(Omega1),0.5)/5.;
@@ -1031,11 +1032,11 @@ int input_read_parameters(
             aosc3 = pow(aosc_cubic(aosc,b3),3.);
             Omega2 = log(pba->Omega0_scf*1.e-14/(aosc3*(pba->Omega0_g+pba->Omega0_ur)));
             for (i=0; i< 30; i++){
-            theta3 = theta1 - (theta1 - theta2)*fmass(5.*theta1,Omega1)/(fmass(5.*theta1,Omega1) - fmass(5.*theta2,Omega2));
+            theta3 = theta1 - (theta1 - theta2)*fmass(theta1,Omega1,theta_ini,pba->scf_parameters[0])/(fmass(theta1,Omega1,theta_ini,pba->scf_parameters[0]) - fmass(theta2,Omega2,theta_ini,pba->scf_parameters[0]));
             aosc = pow((0.5*_PI_/theta3)/pow(1.+pow(_PI_,2)/36.,0.5),0.5);
             aosc3 = pow(aosc_cubic(aosc,b3),3.);
             Omega3 = log(pba->Omega0_scf*1.e-14/(aosc3*(pba->Omega0_g+pba->Omega0_ur)));
-                if (verify(theta3,Omega3,theta_ini) < 1.e-4){
+                if (verify(theta3,Omega3,theta_ini,pba->scf_parameters[0]) < 1.e-4){
                 theta_ini = theta3;
                 Omega_ini = Omega3;
                 break;
@@ -1043,10 +1044,12 @@ int input_read_parameters(
             theta1 = theta2;
             theta2 = theta3;
             }
-        } */
+            //theta_ini = theta3;
+            //Omega_ini = Omega3;
+        }
     /** - Calculate pivot value of Omega_phi_init for the calculation of appropriate initial conditions */
     pba->theta_phi_ini_scf = theta_ini;
-    pba->Omega_phi_ini_scf = pba->scf_parameters[pba->scf_tuning_index]+Omega_ini+log(5.);
+        pba->Omega_phi_ini_scf = pba->scf_parameters[pba->scf_tuning_index]+Omega_ini+log(5.);
     //pba->Omega_phi_ini_scf = pba->scf_parameters[pba->scf_tuning_index]+log(pba->Omega0_scf*5.e-14/(aosc3*(pba->Omega0_g+pba->Omega0_ur)));
     }
     else{
@@ -3985,4 +3988,18 @@ double aosc_cubic(double aosc,
         aguess1 = aguess2;
     }
     return aguess2;
+}
+
+double fmass(double theta1,
+             double Omega1,
+             double theta0,
+             double lambda) {
+    return 25.*pow(theta1,2.0) + 2.*lambda*exp(Omega1) - 25.*pow(theta0,2.0);
+}
+
+double verify(double theta_ini,
+              double Omega_ini,
+              double theta0,
+              double lambda) {
+    return (25.*pow(theta_ini,2.0) + 2.*lambda*exp(Omega_ini) - 25.*pow(theta0,2.0))/(25.*pow(theta_ini,2.0) + 2.*lambda*exp(Omega_ini) + 25.*pow(theta0,2.0));
 }
