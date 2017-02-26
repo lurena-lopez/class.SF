@@ -1027,16 +1027,17 @@ int input_read_parameters(
         if (pba->scf_parameters[0] > 0.){
             theta1 = theta_ini;
             Omega1 = Omega_ini;
-            theta2 = pow(pow(5.*theta_ini,2.)-4.*pba->scf_parameters[0]*exp(Omega1),0.5)/5.;
+            theta2 = pow(pow(5.*theta_ini,2.)-2.*pba->scf_parameters[0]*exp(Omega1),0.5)/5.;
             aosc = pow((0.5*_PI_/theta2)/pow(1.+pow(_PI_,2)/36.,0.5),0.5);
             aosc3 = pow(aosc_cubic(aosc,b3),3.);
             Omega2 = log(pba->Omega0_scf*1.e-14/(aosc3*(pba->Omega0_g+pba->Omega0_ur)));
-            for (i=0; i< 30; i++){
+            for (i=0; i< 100; i++){
             theta3 = theta1 - (theta1 - theta2)*fmass(theta1,Omega1,theta_ini,pba->scf_parameters[0])/(fmass(theta1,Omega1,theta_ini,pba->scf_parameters[0]) - fmass(theta2,Omega2,theta_ini,pba->scf_parameters[0]));
             aosc = pow((0.5*_PI_/theta3)/pow(1.+pow(_PI_,2)/36.,0.5),0.5);
             aosc3 = pow(aosc_cubic(aosc,b3),3.);
             Omega3 = log(pba->Omega0_scf*1.e-14/(aosc3*(pba->Omega0_g+pba->Omega0_ur)));
-                if (verify(theta3,Omega3,theta_ini,pba->scf_parameters[0]) < 1.e-4){
+                if (abs(theta3-theta1)/theta1 < 1.e-6){
+                //if (verify(theta3,Omega3,theta_ini,pba->scf_parameters[0]) < 1.e-4){
                 theta_ini = theta3;
                 Omega_ini = Omega3;
                 break;
