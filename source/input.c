@@ -1027,30 +1027,36 @@ int input_read_parameters(
         if (pba->scf_parameters[0] > 0.){
             theta1 = theta_ini;
             Omega1 = Omega_ini;
-            theta2 = pow(pow(5.*theta_ini,2.)-2.*pba->scf_parameters[0]*exp(Omega1),0.5)/5.;
+            theta2 = 0.0001*theta_ini;
             aosc = pow((0.5*_PI_/theta2)/pow(1.+pow(_PI_,2)/36.,0.5),0.5);
             aosc3 = pow(aosc_cubic(aosc,b3),3.);
             Omega2 = log(pba->Omega0_scf*1.e-14/(aosc3*(pba->Omega0_g+pba->Omega0_ur)));
-            for (i=0; i< 100; i++){
-            theta3 = theta1 - (theta1 - theta2)*fmass(theta1,Omega1,theta_ini,pba->scf_parameters[0])/(fmass(theta1,Omega1,theta_ini,pba->scf_parameters[0]) - fmass(theta2,Omega2,theta_ini,pba->scf_parameters[0]));
-            aosc = pow((0.5*_PI_/theta3)/pow(1.+pow(_PI_,2)/36.,0.5),0.5);
-            aosc3 = pow(aosc_cubic(aosc,b3),3.);
-            Omega3 = log(pba->Omega0_scf*1.e-14/(aosc3*(pba->Omega0_g+pba->Omega0_ur)));
-                if (abs(theta3-theta1)/theta1 < 1.e-6){
-                //if (verify(theta3,Omega3,theta_ini,pba->scf_parameters[0]) < 1.e-4){
-                theta_ini = theta3;
-                Omega_ini = Omega3;
-                break;
-                }
-            theta1 = theta2;
-            theta2 = theta3;
+            for (i=0; i< 30; i++){
+                theta3 = theta1 - (theta1 - theta2)*fmass(theta1,Omega1,theta_ini,pba->scf_parameters[0])/(fmass(theta1,Omega1,theta_ini,pba->scf_parameters[0]) - fmass(theta2,Omega2,theta_ini,pba->scf_parameters[0]));
+                aosc = pow((0.5*_PI_/theta3)/pow(1.+pow(_PI_,2)/36.,0.5),0.5);
+                aosc3 = pow(aosc_cubic(aosc,b3),3.);
+                Omega3 = log(pba->Omega0_scf*1.e-14/(aosc3*(pba->Omega0_g+pba->Omega0_ur)));
+                //printf(" -> i = %d\n",i);
+                //printf(" -> theta1 = %1.2e\n",theta1);
+                //printf(" -> theta2 = %1.2e\n",theta2);
+                //printf(" -> theta3 = %1.2e\n",theta3);
+                //printf(" -> abs = %1.2e\n",pow(pow((theta3-theta1)/theta1,2.),0.5));
+                //printf(" -> abs2 = %1.2e\n",pow(pow(verify(theta3,Omega3,theta_ini,pba->scf_parameters[0]),2.),0.5));
+                //if (pow(pow((theta3-theta1)/theta1,2.),0.5) < 1.e-6) break;
+                if (pow(pow(verify(theta3,Omega3,theta_ini,pba->scf_parameters[0]),2.),0.5) < 1.e-6) break;
+                theta1 = theta2;
+                aosc = pow((0.5*_PI_/theta1)/pow(1.+pow(_PI_,2)/36.,0.5),0.5);
+                aosc3 = pow(aosc_cubic(aosc,b3),3.);
+                Omega1 = log(pba->Omega0_scf*1.e-14/(aosc3*(pba->Omega0_g+pba->Omega0_ur)));
+                theta2 = theta3;
+                Omega2 = Omega3;
             }
-            //theta_ini = theta3;
-            //Omega_ini = Omega3;
+            theta_ini = theta3;
+            Omega_ini = Omega3;
         }
     /** - Calculate pivot value of Omega_phi_init for the calculation of appropriate initial conditions */
     pba->theta_phi_ini_scf = theta_ini;
-        pba->Omega_phi_ini_scf = pba->scf_parameters[pba->scf_tuning_index]+Omega_ini+log(5.);
+    pba->Omega_phi_ini_scf = pba->scf_parameters[pba->scf_tuning_index]+Omega_ini+log(5.);
     //pba->Omega_phi_ini_scf = pba->scf_parameters[pba->scf_tuning_index]+log(pba->Omega0_scf*5.e-14/(aosc3*(pba->Omega0_g+pba->Omega0_ur)));
     }
     else{
@@ -3995,12 +4001,12 @@ double fmass(double theta1,
              double Omega1,
              double theta0,
              double lambda) {
-    return 25.*pow(theta1,2.0) + 2.*lambda*exp(Omega1) - 25.*pow(theta0,2.0);
+    return pow(theta1/theta0,2.0) + 2.*lambda*exp(Omega1)/pow(5.*theta0,2.0) - 1.;
 }
 
 double verify(double theta_ini,
               double Omega_ini,
               double theta0,
               double lambda) {
-    return (25.*pow(theta_ini,2.0) + 2.*lambda*exp(Omega_ini) - 25.*pow(theta0,2.0))/(25.*pow(theta_ini,2.0) + 2.*lambda*exp(Omega_ini) + 25.*pow(theta0,2.0));
+    return (pow(theta_ini/theta0,2.0) + 2.*lambda*exp(Omega_ini)/pow(5.*theta0,2.0) - 1.)/(pow(theta_ini/theta0,2.0) + 2.*lambda*exp(Omega_ini)/pow(5.*theta0,2.0) + 1.);
 }
