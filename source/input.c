@@ -1055,8 +1055,8 @@ int input_read_parameters(
             Omega_ini = Omega3;
         }
     /** - Calculate pivot value of Omega_phi_init for the calculation of appropriate initial conditions */
+    pba->Omega_phi_ini_scf = pba->scf_parameters[pba->scf_tuning_index]+Omega_ini;
     pba->theta_phi_ini_scf = theta_ini;
-    pba->Omega_phi_ini_scf = pba->scf_parameters[pba->scf_tuning_index]+Omega_ini+log(5.);
     //pba->Omega_phi_ini_scf = pba->scf_parameters[pba->scf_tuning_index]+log(pba->Omega0_scf*5.e-14/(aosc3*(pba->Omega0_g+pba->Omega0_ur)));
     }
     else{
