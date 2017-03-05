@@ -465,9 +465,9 @@ extern "C" {
 			 );
 
   /** Scalar field variables. See background.c for more details. */
-  double w_phi_scf(struct background *pba,
+/**  double w_phi_scf(struct background *pba,
 		   double theta
-		   );
+		   );**/
   
   double cos_scf(struct background *pba,
 		 double theta_phi
@@ -484,11 +484,11 @@ extern "C" {
 		    );
 
   /** Coupling between scalar field and matter **/
-  double Q_scf(
+/**  double Q_scf(
                struct background *pba,
                double phi,
                double phi_prime
-               );
+               ); **/
 
 #ifdef __cplusplus
 }
