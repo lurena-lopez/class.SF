@@ -1014,18 +1014,20 @@ int input_read_parameters(
 
     /** - Initial conditions for scalar field variables */
     if (pba->scf_parameters[0] >= 0.){
+    //if (pba->scf_parameters[0] = 0){
     /** - Conversion of the boson mass into initial conditions */
     theta_ini = 0.4*15.64*pba->scf_parameters[1]/(pow(pba->Omega0_g+pba->Omega0_ur,0.5)*pba->H0);
     //pba->theta_phi_ini_scf = 0.4*15.64*pba->scf_parameters[1]/(pow(pba->Omega0_g+pba->Omega0_ur,0.5)*pba->H0);
     /** - Solve the cubic equation by Newton-Raphson. It works for lambda >=0 */
     aosc = pow((0.5*_PI_/theta_ini)/pow(1.+pow(_PI_,2)/36.,0.5),0.5);
-    b3 = 1.e-14*pba->scf_parameters[0]*pba->Omega0_scf/(72.*(pba->Omega0_g+pba->Omega0_ur));
-    aosc3 = pow(aosc_cubic(aosc,b3),3.);//pow(aosc,3.);
+    //b3 = 1.e-14*pba->scf_parameters[0]*pba->Omega0_scf/(72.*(pba->Omega0_g+pba->Omega0_ur));
+    //aosc3 = pow(aosc_cubic(aosc,b3),3.);//pow(aosc,3.);
     /** - Calculate pivot value of Omega_phi_init for the calculation of appropriate initial conditions */
-    Omega_ini = pba->scf_parameters[pba->scf_tuning_index]+log(pba->Omega0_scf*1.e-14/(aosc3*(pba->Omega0_g+pba->Omega0_ur)));
+    Omega_ini = pba->scf_parameters[pba->scf_tuning_index]+log(pba->Omega0_scf*1.e-14/(pow(aosc,3.)*(pba->Omega0_g+pba->Omega0_ur)));
+    /**else{
     /** Secant method to fix the value of the boson mass */
-        if (pba->scf_parameters[0] > 0.){
-            theta1 = theta_ini;
+    if (pba->scf_parameters[0] > 0.){
+           /** theta1 = theta_ini;
             Omega1 = Omega_ini;
             theta2 = 0.0001*theta_ini;
             aosc = pow((0.5*_PI_/theta2)/pow(1.+pow(_PI_,2)/36.,0.5),0.5);
@@ -1052,17 +1054,20 @@ int input_read_parameters(
                 Omega2 = Omega3;
             }
             theta_ini = theta3;
-            Omega_ini = Omega3;
+            Omega_ini = Omega3; **/
+        Omega_ini = -pba->scf_parameters[pba->scf_tuning_index] + 2.*log(15.64*pba->scf_parameters[1]/(pow(pba->Omega0_g+pba->Omega0_ur,0.5)*pba->H0*pow(pba->scf_parameters[0],0.5)));
+        theta_ini = 0.4*pow(pow(15.64*pba->scf_parameters[1]/(pow(pba->Omega0_g+pba->Omega0_ur,0.5)*pba->H0),2.)-pba->scf_parameters[0]*exp(Omega_ini),0.5);
         }
+    //}
     /** - Calculate pivot value of Omega_phi_init for the calculation of appropriate initial conditions */
     pba->Omega_phi_ini_scf = Omega_ini;//pba->scf_parameters[pba->scf_tuning_index]+Omega_ini;
     pba->theta_phi_ini_scf = theta_ini;
     //pba->Omega_phi_ini_scf = pba->scf_parameters[pba->scf_tuning_index]+log(pba->Omega0_scf*5.e-14/(aosc3*(pba->Omega0_g+pba->Omega0_ur)));
     }
-    else{
+    /**else{
     pba->theta_phi_ini_scf = 1.910633;
     pba->Omega_phi_ini_scf = -pba->scf_parameters[pba->scf_tuning_index]*12./pba->scf_parameters[0];
-    }
+    }**/
 
     /** The initial condition for y1_phi_ini corresponds, or not, to the attractor value */
     class_call(parser_read_string(pfc,
