@@ -1035,12 +1035,12 @@ int input_read_parameters(
                 aosc = pow((0.5*_PI_/theta3)/pow(1.+pow(_PI_,2)/36.,0.5),0.5);
                 aosc3 = pow(aosc_cubic(aosc,b3),3.);//pow(aosc,3.);
                 Omega3 = 0.*pba->scf_parameters[pba->scf_tuning_index]+log(pba->Omega0_scf*1.e-14/(aosc3*(pba->Omega0_g+pba->Omega0_ur)));
-                printf(" -> i = %d\n",i);
-                printf(" -> theta1 = %1.2e\n",theta1);
-                printf(" -> theta2 = %1.2e\n",theta2);
-                printf(" -> theta3 = %1.2e\n",theta3);
+                //printf(" -> i = %d\n",i);
+                //printf(" -> theta1 = %1.2e\n",theta1);
+                //printf(" -> theta2 = %1.2e\n",theta2);
+                //printf(" -> theta3 = %1.2e\n",theta3);
                 //printf(" -> abs = %1.2e\n",pow(pow((theta3-theta1)/theta1,2.),0.5));
-                printf(" -> abs2 = %1.2e\n",pow(pow(verify(theta3,Omega3,theta_ini,pba->scf_parameters[0]),2.),0.5));
+                //printf(" -> abs2 = %1.2e\n",pow(pow(verify(theta3,Omega3,theta_ini,pba->scf_parameters[0]),2.),0.5));
                 if (pow(pow(verify(theta3,Omega3,theta_ini,pba->scf_parameters[0]),2.),0.5) < 1.e-6) break;
                 theta1 = theta2;
                 aosc = pow((0.5*_PI_/theta1)/pow(1.+pow(_PI_,2)/36.,0.5),0.5);
@@ -1051,6 +1051,7 @@ int input_read_parameters(
             }
             theta_ini = theta3;
             Omega_ini = Omega3;
+            //Omega_ini = (pow(2.*15.64*pba->scf_parameters[1]/(pow(pba->Omega0_g+pba->Omega0_ur,0.5)*pba->H0),2.)-25.*pow(theta_ini,2.))/(4.*pba->scf_parameters[0]);
     }
     /** - Calculate pivot value of Omega_phi_init for the calculation of appropriate initial conditions */
     pba->Omega_phi_ini_scf = pba->scf_parameters[pba->scf_tuning_index]+Omega_ini;

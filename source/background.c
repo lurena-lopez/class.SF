@@ -1654,10 +1654,12 @@ int background_solve(
       printf(" Scalar field details:\n");
       printf(" -> Omega_scf = %g, wished = %g\n",
 	     exp(pvecback[pba->index_bg_Omega_phi_scf]), pba->Omega0_scf);
+      printf(" -> lambda_scf = %1.2e\n",
+               pba->scf_parameters[0]);
       printf(" -> Mass_scf = %5.4e [1/Mpc], %5.4e [eV], %5.4e [H_0]\n",
              0.5*pvecback[pba->index_bg_y_phi_scf]*pvecback[pba->index_bg_H], 3.19696e-30*pvecback[pba->index_bg_y_phi_scf]*pvecback[pba->index_bg_H], 0.5*pvecback[pba->index_bg_y_phi_scf]);
-        printf(" -> lambda_scf = %1.2e\n",
-               pba->scf_parameters[0]);
+        printf(" -> wished = %1.2e [eV]\n",
+               pba->scf_parameters[1]);
     }
     if(pba->has_lambda == _TRUE_){
       printf(" Lambda details:\n");
