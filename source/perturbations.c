@@ -7250,10 +7250,10 @@ int perturb_derivs(double tau,
         
         /** Proper correction for the axion case */
         
-        dy[pv->index_pt_delta1_scf] = -a_prime_over_a*((3.*cos_scf(pba,theta_phi_scf)+omega_scf*sin_scf(pba,theta_phi_scf)
-                                                        -exp(0.5*Omega_phi_scf)*sin_scf(pba,0.5*theta_phi_scf)*y2_phi_scf(pba,Omega_phi_scf,theta_phi_scf,y1_phi_scf)/y1_phi_scf)*delta1_scf
-                                                       -(omega_scf-0.5*exp(0.5*Omega_phi_scf)/y1_phi_scf)*(1.+cos_scf(pba,theta_phi_scf))*delta0_scf)
-        -metric_continuity*sin_scf(pba,theta_phi_scf); //metric_continuity = h'/2
+        dy[pv->index_pt_delta1_scf] = -a_prime_over_a*((3.*cos_scf(pba,theta_phi_scf)
+                                                        +(omega_scf-0.5*pba->scf_parameters[0]*exp(Omega_phi_scf)/y1_phi_scf)*sin_scf(pba,theta_phi_scf))*delta1_scf
+                                                       -(omega_scf-0.5*pba->scf_parameters[0]*exp(Omega_phi_scf)/y1_phi_scf)*(1.+cos_scf(pba,theta_phi_scf))*delta0_scf)
+                                      -metric_continuity*sin_scf(pba,theta_phi_scf); //metric_continuity = h'/2
 
 /**        dy[pv->index_pt_delta1_scf] = -a_prime_over_a*((3.*cos_scf(pba,theta_phi_scf)+omega_scf*sin_scf(pba,theta_phi_scf)
         -exp(0.5*Omega_phi_scf)*sin_scf(pba,0.5*theta_phi_scf)*y2_phi_scf(pba,Omega_phi_scf,theta_phi_scf,y1_phi_scf)/y1_phi_scf)*delta1_scf
