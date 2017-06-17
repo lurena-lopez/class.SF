@@ -2255,7 +2255,7 @@ int perturb_solve(
       theta_phi = ppw->pvecback[pba->index_bg_theta_phi_scf];
       y1_phi = ppw->pvecback[pba->index_bg_y_phi_scf];
       /** Following expression comes from a trigonometric-hyperbolic identity for mass_scf */
-      m_scf_over_H = 0.5*pow(pow(y1_phi,2.)+2.*y2_phi_scf(pba,Omega_phi,theta_phi,y1_phi)*exp(0.5*Omega_phi)*cos_scf(pba,0.5*theta_phi),0.5);
+      m_scf_over_H = 0.5*pow(pow(y1_phi,2.)+2.*pba->scf_parameters[0]*exp(Omega_phi)*cos_scf(pba,0.5*theta_phi)*cos_scf(pba,0.5*theta_phi),0.5);
       
       if (m_scf_over_H > 1.e-2)
       is_early_enough = _FALSE_;
