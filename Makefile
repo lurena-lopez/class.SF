@@ -18,7 +18,7 @@ vpath .base build
 
 # your C compiler:
 #CC       = cc
-CC       = /usr/local/bin/gcc-7
+CC       = gcc-7
 #CC       = icc
 #CC       = pgcc
 
