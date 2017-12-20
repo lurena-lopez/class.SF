@@ -3324,6 +3324,7 @@ int spectra_output_tk_titles(struct background *pba,
     class_store_columntitle(titles,"-T_g/k2",_TRUE_);
     class_store_columntitle(titles,"-T_ur/k2",_TRUE_);
     class_store_columntitle(titles,"-T_ncdm/k2",_TRUE_);
+    class_store_columntitle(titles,"-T_scf/k2",pba->has_scf);
     class_store_columntitle(titles,"-T_tot/k2",_TRUE_);
 
   }
@@ -3453,6 +3454,7 @@ int spectra_output_tk_data(
           class_store_double_or_default(dataptr,-tk[psp->index_tr_delta_g]/k2,ppt->has_source_delta_g,storeidx,0.0);
           class_store_double_or_default(dataptr,-tk[psp->index_tr_delta_ur]/k2,ppt->has_source_delta_ur,storeidx,0.0);
           class_store_double_or_default(dataptr,-tk[psp->index_tr_delta_ncdm1]/k2,ppt->has_source_delta_ncdm,storeidx,0.0);
+          class_store_double_or_default(dataptr,-tk[psp->index_tr_delta_scf]/k2,ppt->has_source_delta_scf,storeidx,0.0);
           class_store_double_or_default(dataptr,-tk[psp->index_tr_delta_tot]/k2,_TRUE_,storeidx,0.0);
         }
       }
