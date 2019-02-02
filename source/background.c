@@ -417,8 +417,8 @@ int background_functions(
   pvecback[pba->index_bg_H_prime] = - (3./2.) * (rho_tot + p_tot) * a + pba->K/a;
 
   /** - compute relativistic density to total density ratio */
-  //pvecback[pba->index_bg_Omega_r] = (rho_r + pvecback[pba->index_bg_rho_scf]) / rho_tot;
-  pvecback[pba->index_bg_Omega_r] = rho_r / rho_tot;
+  pvecback[pba->index_bg_Omega_r] = (rho_r + pvecback[pba->index_bg_rho_scf]) / rho_tot;
+  //pvecback[pba->index_bg_Omega_r] = rho_r / rho_tot;
 
   /** - compute other quantities in the exhaustive, redundant format */
   if (return_format == pba->long_info) {
