@@ -2052,10 +2052,11 @@ int background_derivs(
     dy[pba->index_bi_theta_phi_scf] = y[pba->index_bi_a]*pvecback[pba->index_bg_H]*
       (-3.*sin_scf(pba,y[pba->index_bi_theta_phi_scf])+y[pba->index_bi_y_phi_scf]);
       
-    dy[pba->index_bi_y_phi_scf] = y[pba->index_bi_a]*pvecback[pba->index_bg_H]*
+      //General expression for: axion (lambda >0), quadratic (lambda =0), cosh (lambda < 0)
+      dy[pba->index_bi_y_phi_scf] = y[pba->index_bi_a]*pvecback[pba->index_bg_H]*
       (1.5*(1.+pvecback[pba->index_bg_w_tot])*y[pba->index_bi_y_phi_scf]
-       + y2_phi_scf(pba,y[pba->index_bi_Omega_phi_scf],y[pba->index_bi_theta_phi_scf],y[pba->index_bi_y_phi_scf])*
-       exp(0.5*y[pba->index_bi_Omega_phi_scf])*sin_scf(pba,0.5*y[pba->index_bi_theta_phi_scf]));
+       + 0.5*pba->scf_parameters[0]*exp(y[pba->index_bi_Omega_phi_scf])*sin_scf(pba,y[pba->index_bi_theta_phi_scf]));
+
   }
 
 
@@ -2084,15 +2085,4 @@ double sin_scf(struct background *pba,
   double theta_thresh = 1.e2;
     double theta_tol = 1.;//1.e-2;
   return 0.5*(1.-tanh(theta_tol*(theta_phi*theta_phi-theta_thresh*theta_thresh)))*sin(theta_phi);
-}
-
-/** Second potential variable y2 for scalar field */
-double y2_phi_scf(struct background *pba,
-		  double Omega_phi,
-		  double theta,
-		  double y1_phi
-		  ) {
-  double scf_lambda = pba->scf_parameters[0];
-  //General expression for: axion (lambda >0), quadratic (lambda =0), cosh (lambda < 0)
-  return  scf_lambda*exp(0.5*Omega_phi)*cos_scf(pba,0.5*theta);
 }
