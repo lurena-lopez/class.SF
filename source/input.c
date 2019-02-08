@@ -1054,10 +1054,10 @@ int input_read_parameters(
     pba->Omega_phi_ini_scf = Omega_ini;//pba->scf_parameters[pba->scf_tuning_index]+
     pba->theta_phi_ini_scf = theta_ini;
     }
-    /**else{
-    pba->theta_phi_ini_scf = (1.+exp(-pba->scf_parameters[pba->scf_tuning_index]))*acos(-1./3.);
-    pba->Omega_phi_ini_scf = -12./pba->scf_parameters[0];
-    }**/
+    else{
+        pba->theta_phi_ini_scf = acos(-1./3.)*(1.+exp(-pba->scf_parameters[pba->scf_tuning_index]));
+        pba->Omega_phi_ini_scf = log(-12./pba->scf_parameters[0]);
+    }
 
     /** The initial condition for y1_phi_ini corresponds, or not, to the attractor value */
     class_call(parser_read_string(pfc,
@@ -1072,7 +1072,7 @@ int input_read_parameters(
       if((strstr(string1,"y") != NULL) || (strstr(string1,"Y") != NULL)){
         pba->attractor_ic_scf = _TRUE_;
         if (pba->scf_parameters[0] >= 0.)
-            pba->y_phi_ini_scf = 5.*pba->theta_phi_ini_scf;//*(1.-pba->scf_parameters[0]*exp(pba->Omega_phi_ini_scf)/72.);
+            pba->y_phi_ini_scf = 5.*pba->theta_phi_ini_scf;
         else
         pba->y_phi_ini_scf = 2.*pow(2.,0.5);
         }
