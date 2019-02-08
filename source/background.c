@@ -268,8 +268,6 @@ int background_functions(
   int n_ncdm;
   /* scale factor */
   double a;
-  /* scalar field quantitites */
-  double Omega_phi, theta_phi, y1_phi;
 
   /** - initialize local variables */
   a = pvecback_B[pba->index_bi_a];
@@ -390,22 +388,20 @@ int background_functions(
 
     /* Scalar field */
   if (pba->has_scf == _TRUE_) {
-    // First we update B quantities
-    Omega_phi = pvecback_B[pba->index_bi_Omega_phi_scf];
-    theta_phi = pvecback_B[pba->index_bi_theta_phi_scf];
-    y1_phi = pvecback_B[pba->index_bi_y_phi_scf];
-    pvecback[pba->index_bg_Omega_phi_scf] = Omega_phi; // value of the scalar field Omega_phi
-    pvecback[pba->index_bg_theta_phi_scf] = theta_phi; // value of the scalar field theta_phi
-    pvecback[pba->index_bg_y_phi_scf] = y1_phi; // value of the scalar field y1_phi
-    pvecback[pba->index_bg_rho_scf] = exp(Omega_phi)*rho_tot/(1.-exp(Omega_phi)); // energy of the scalar field
-    pvecback[pba->index_bg_p_scf] = -cos_scf(pba,theta_phi)*pvecback[pba->index_bg_rho_scf];// pressure of the scalar field
+    pvecback[pba->index_bg_Omega_phi_scf] = pvecback_B[pba->index_bi_Omega_phi_scf]; // value of the scalar field Omega_phi
+    pvecback[pba->index_bg_theta_phi_scf] = pvecback_B[pba->index_bi_theta_phi_scf]; // value of the scalar field theta_phi
+    pvecback[pba->index_bg_y_phi_scf] = pvecback_B[pba->index_bi_y_phi_scf]; // value of the scalar field y1_phi
+    pvecback[pba->index_bg_rho_scf] = exp(pvecback_B[pba->index_bi_Omega_phi_scf])*rho_tot/(1.-exp(pvecback_B[pba->index_bi_Omega_phi_scf])); // energy of the scalar field
+    pvecback[pba->index_bg_p_scf] = -cos_scf(pba,pvecback_B[pba->index_bi_theta_phi_scf])*pvecback[pba->index_bg_rho_scf];// pressure of the scalar field
     rho_m += pvecback[pba->index_bg_rho_scf]; // add scalar field energy density into the total matter budget
+    rho_r += pvecback[pba->index_bg_rho_scf]; // add scalar field energy density into the total relativistic budget
     rho_tot += pvecback[pba->index_bg_rho_scf]; // add scalar field density to the total one
     p_tot += pvecback[pba->index_bg_p_scf]; // add scalar field pressure to the total one
   }
 
   /** - compute the total EoS: w_tot */
   pvecback[pba->index_bg_w_tot] = p_tot/rho_tot;
+  //printf(" -> w_tot = %1.2e\n",pvecback[pba->index_bg_w_tot]);
   
   /** - compute expansion rate H from Friedmann equation: this is the
       only place where the Friedmann equation is assumed. Remember
@@ -417,8 +413,7 @@ int background_functions(
   pvecback[pba->index_bg_H_prime] = - (3./2.) * (rho_tot + p_tot) * a + pba->K/a;
 
   /** - compute relativistic density to total density ratio */
-  pvecback[pba->index_bg_Omega_r] = (rho_r + pvecback[pba->index_bg_rho_scf]) / rho_tot;
-  //pvecback[pba->index_bg_Omega_r] = rho_r / rho_tot;
+  pvecback[pba->index_bg_Omega_r] = rho_r / rho_tot;
 
   /** - compute other quantities in the exhaustive, redundant format */
   if (return_format == pba->long_info) {
@@ -1822,6 +1817,11 @@ int background_initial_conditions(
     pvecback_integration[pba->index_bi_theta_phi_scf] = pba->theta_phi_ini_scf;
     pvecback_integration[pba->index_bi_y_phi_scf] = pba->y_phi_ini_scf;
     printf(" -> Omega_ini = %1.2e, theta_ini = %1.2e, y_ini = %1.2e\n",exp(pba->Omega_phi_ini_scf),pba->theta_phi_ini_scf,pba->y_phi_ini_scf);
+    printf(" -> w_tot = %1.2e\n",pvecback[pba->index_bg_w_tot]);
+    printf(" -> theta_ini = %1.2e\n",-3.*sin_scf(pba,pba->theta_phi_ini_scf)+pba->y_phi_ini_scf);
+      printf(" -> y_ini = %1.2e\n",1.5*(1.+1./3.+0*pvecback[pba->index_bg_w_tot])*pba->y_phi_ini_scf
+             + 0.5*pba->scf_parameters[0]*exp(pba->Omega_phi_ini_scf)*sin_scf(pba,pba->theta_phi_ini_scf));
+      printf(" -> Omega_ini = %1.2e\n",0.*pvecback[pba->index_bg_w_tot]+1./3.+cos_scf(pba,pba->theta_phi_ini_scf));
   }
 
   /* Infer pvecback from pvecback_integration */

@@ -1051,12 +1051,13 @@ int input_read_parameters(
             Omega_ini = Omega3;
     }
     /** - Calculate pivot value of Omega_phi_init for the calculation of appropriate initial conditions */
-    pba->Omega_phi_ini_scf = Omega_ini;//pba->scf_parameters[pba->scf_tuning_index]+
+    pba->Omega_phi_ini_scf = Omega_ini;
     pba->theta_phi_ini_scf = theta_ini;
     }
     else{
         pba->theta_phi_ini_scf = acos(-1./3.)*(1.+exp(-pba->scf_parameters[pba->scf_tuning_index]));
         pba->Omega_phi_ini_scf = log(-12./pba->scf_parameters[0]);
+                  printf(" -> theta1 = %1.2e\n",pba->scf_parameters[pba->scf_tuning_index]);
     }
 
     /** The initial condition for y1_phi_ini corresponds, or not, to the attractor value */
