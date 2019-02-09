@@ -1055,7 +1055,7 @@ int input_read_parameters(
     pba->theta_phi_ini_scf = theta_ini;
     }
     else{
-        pba->theta_phi_ini_scf = acos(-1./3.)*(1.+exp(-pba->scf_parameters[pba->scf_tuning_index]));
+        pba->theta_phi_ini_scf = acos(-1./3.);
         pba->Omega_phi_ini_scf = log(-12./pba->scf_parameters[0]);
                   printf(" -> theta1 = %1.2e\n",pba->scf_parameters[pba->scf_tuning_index]);
     }
@@ -1075,7 +1075,7 @@ int input_read_parameters(
         if (pba->scf_parameters[0] >= 0.)
             pba->y_phi_ini_scf = 5.*pba->theta_phi_ini_scf;
         else
-        pba->y_phi_ini_scf = 2.*pow(2.,0.5);
+        pba->y_phi_ini_scf = 1.e-6*pba->scf_parameters[pba->scf_tuning_index];
         }
       else{
         pba->attractor_ic_scf = _FALSE_;
