@@ -1816,12 +1816,12 @@ int background_initial_conditions(
     pvecback_integration[pba->index_bi_Omega_phi_scf] = pba->Omega_phi_ini_scf;
     pvecback_integration[pba->index_bi_theta_phi_scf] = pba->theta_phi_ini_scf;
     pvecback_integration[pba->index_bi_y_phi_scf] = pba->y_phi_ini_scf;
-    printf(" -> Omega_ini = %1.2e, theta_ini = %1.2e, y_ini = %1.2e\n",exp(pba->Omega_phi_ini_scf),pba->theta_phi_ini_scf,pba->y_phi_ini_scf);
-    printf(" -> w_tot = %1.2e\n",pvecback[pba->index_bg_w_tot]);
-    printf(" -> theta_ini = %1.2e\n",-3.*sin_scf(pba,pba->theta_phi_ini_scf)+pba->y_phi_ini_scf);
-      printf(" -> y_ini = %1.2e\n",1.5*(1.+1./3.+0*pvecback[pba->index_bg_w_tot])*pba->y_phi_ini_scf
-             + 0.5*pba->scf_parameters[0]*exp(pba->Omega_phi_ini_scf)*sin_scf(pba,pba->theta_phi_ini_scf));
-      printf(" -> Omega_ini = %1.2e\n",0.*pvecback[pba->index_bg_w_tot]+1./3.+cos_scf(pba,pba->theta_phi_ini_scf));
+    //printf(" -> Omega_ini = %1.2e, theta_ini = %1.2e, y_ini = %1.2e\n",exp(pba->Omega_phi_ini_scf),pba->theta_phi_ini_scf,pba->y_phi_ini_scf);
+    //printf(" -> w_tot = %1.2e\n",pvecback[pba->index_bg_w_tot]);
+    //printf(" -> dtheta_ini = %1.2e\n",-3.*sin_scf(pba,pba->theta_phi_ini_scf)+pow(8,0.5)+pba->y_phi_ini_scf);
+      //printf(" -> dy_ini = %1.2e\n",1.5*(1.+pvecback[pba->index_bg_w_tot])*(pow(8,0.5)+pba->y_phi_ini_scf)
+      //+0.5*pba->scf_parameters[0]*exp(pba->Omega_phi_ini_scf)*sin_scf(pba,pba->theta_phi_ini_scf));
+      //printf(" -> dOmega_ini = %1.2e\n",pvecback[pba->index_bg_w_tot]+cos_scf(pba,pba->theta_phi_ini_scf));
   }
 
   /* Infer pvecback from pvecback_integration */
@@ -2050,13 +2050,12 @@ int background_derivs(
       (pvecback[pba->index_bg_w_tot]+cos_scf(pba,y[pba->index_bi_theta_phi_scf]));
       
     dy[pba->index_bi_theta_phi_scf] = y[pba->index_bi_a]*pvecback[pba->index_bg_H]*
-      (-3.*sin_scf(pba,y[pba->index_bi_theta_phi_scf])+y[pba->index_bi_y_phi_scf]+2.*pow(2.,0.5));
+      (-3.*sin_scf(pba,y[pba->index_bi_theta_phi_scf])+y[pba->index_bi_y_phi_scf]);
       
       //General expression for: axion (lambda >0), quadratic (lambda =0), cosh (lambda < 0)
-      dy[pba->index_bi_y_phi_scf] = y[pba->index_bi_a]*pvecback[pba->index_bg_H]*
-      (1.5*(1.+pvecback[pba->index_bg_w_tot])*(y[pba->index_bi_y_phi_scf]+2.*pow(2.,0.5))
-       + 0.5*pba->scf_parameters[0]*exp(y[pba->index_bi_Omega_phi_scf])*sin_scf(pba,y[pba->index_bi_theta_phi_scf]));
-
+    dy[pba->index_bi_y_phi_scf] = y[pba->index_bi_a]*pvecback[pba->index_bg_H]*
+       (1.5*(1.+pvecback[pba->index_bg_w_tot])*y[pba->index_bi_y_phi_scf]
+        + 0.5*pba->scf_parameters[0]*exp(y[pba->index_bi_Omega_phi_scf])*sin_scf(pba,y[pba->index_bi_theta_phi_scf]));
   }
 
 

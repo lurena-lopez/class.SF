@@ -517,9 +517,9 @@ int input_read_parameters(
   double param1,param2,param3;
   int N_ncdm=0,n,entries_read;
   int int1,fileentries;
-  double theta_ini,Omega_ini;
+  double theta_ini,Omega_ini,masstohubble_ini;
   double aosc,aosc3,b3,aguess1,aguess2;
-    double theta0,theta1,theta2,theta3,Omega1,Omega2,Omega3;
+  double theta0,theta1,theta2,theta3,Omega1,Omega2,Omega3;
   double fnu_factor;
   double * pointer1;
   char string1[_ARGUMENT_LENGTH_MAX_];
@@ -1015,7 +1015,9 @@ int input_read_parameters(
     /** - Initial conditions for scalar field variables */
     if (pba->scf_parameters[0] >= 0.){
     /** - Conversion of the boson mass into initial conditions */
-    theta_ini = 0.4*15.64*pba->scf_parameters[1]/(pow(pba->Omega0_g+pba->Omega0_ur,0.5)*pba->H0);
+    masstohubble_ini = 1.564e29*pba->scf_parameters[1]/(pow(pba->Omega0_g+pba->Omega0_ur,0.5)*pba->H0);
+    //theta_ini = 0.4*15.64*pba->scf_parameters[1]/(pow(pba->Omega0_g+pba->Omega0_ur,0.5)*pba->H0);
+    theta_ini = 0.4*1.e-28*masstohubble_ini;
     /** - Solve the cubic equation by Newton-Raphson. It works for lambda >=0 */
     aosc = pow((0.5*_PI_/theta_ini)/pow(1.+pow(_PI_,2)/36.,0.5),0.5);
     b3 = 1.e-14*pba->scf_parameters[0]*pba->Omega0_scf/(72.*(pba->Omega0_g+pba->Omega0_ur));
@@ -1054,10 +1056,9 @@ int input_read_parameters(
     pba->Omega_phi_ini_scf = Omega_ini;
     pba->theta_phi_ini_scf = theta_ini;
     }
-    else{
+    if (pba->scf_parameters[0] < 0.){
         pba->theta_phi_ini_scf = acos(-1./3.);
-        pba->Omega_phi_ini_scf = log(-12./pba->scf_parameters[0]);
-                  printf(" -> theta1 = %1.2e\n",pba->scf_parameters[pba->scf_tuning_index]);
+        pba->Omega_phi_ini_scf = pba->scf_parameters[pba->scf_tuning_index]+log(-12./pba->scf_parameters[0]);
     }
 
     /** The initial condition for y1_phi_ini corresponds, or not, to the attractor value */
@@ -1075,7 +1076,9 @@ int input_read_parameters(
         if (pba->scf_parameters[0] >= 0.)
             pba->y_phi_ini_scf = 5.*pba->theta_phi_ini_scf;
         else
-        pba->y_phi_ini_scf = 1.e-6*pba->scf_parameters[pba->scf_tuning_index];
+        pba->y_phi_ini_scf = pow(-(2./3.)*pba->scf_parameters[0]*exp(pba->Omega_phi_ini_scf),0.5);
+          printf(" -> y1 = %1.2e\n",pba->y_phi_ini_scf);
+        printf(" -> shooting = %1.2e\n",pba->scf_parameters[pba->scf_tuning_index]);
         }
       else{
         pba->attractor_ic_scf = _FALSE_;
