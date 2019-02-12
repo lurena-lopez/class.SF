@@ -1019,11 +1019,12 @@ int input_read_parameters(
     if (pba->scf_parameters[0] < 0.){
         theta_ini = acos(-1./3.);
         Omega_ini = log(-12./pba->scf_parameters[0]);
-        //masstohubble_ini = 1.e-28*pow(pba->scf_parameters[0]/3.-4.,2.)*pow(pba->Omega0_scf/(pba->Omega0_g+pba->Omega0_ur),2.);
+        masstohubble_ini = 1.e-28*pow(pba->scf_parameters[0]/3.-4.,2.)*pow(pba->Omega0_scf/(pba->Omega0_g+pba->Omega0_ur),2.);
         //y1_ini = pow(4.*pow(masstohubble_ini*fabs(pba->scf_parameters[pba->scf_tuning_index]),2.)-(2./3.)*pba->scf_parameters[0]*exp(Omega_ini),0.5);
-        y1_ini = pow(pba->scf_parameters[pba->scf_tuning_index]-(2./3.)*pba->scf_parameters[0]*exp(Omega_ini),0.5);
+        y1_ini = 2.*masstohubble_ini*pba->scf_parameters[pba->scf_tuning_index];
         printf(" -> Omega_ini = %1.2e, theta_ini = %1.2e, y1_ini = %1.2e\n",Omega_ini,theta_ini,y1_ini);
-        printf(" -> tuning = %1.2e\n",pba->scf_parameters[pba->scf_tuning_index]);
+        printf(" -> tuning = %1.2e, y_ini = %1.2e\n",pba->scf_parameters[pba->scf_tuning_index],
+               pow(pow(2.*masstohubble_ini,2.)-2.*pba->scf_parameters[0]*exp(Omega_ini)*pow(cos(0.5*theta_ini),2.),0.5));
     }
     else{
     /** - Otherwise: lambda > = 0 */
@@ -1035,10 +1036,10 @@ int input_read_parameters(
         /** - Use a third order approximation for Omega_ini */
     //Omega_pivot = log(pba->Omega0_scf*1.e-14/(aosc3*(pba->Omega0_g+pba->Omega0_ur)));
         /** - Save the initial values */
+    y1_ini = 2.*masstohubble_ini;
     Omega_ini = pba->scf_parameters[pba->scf_tuning_index]+
         log(pba->Omega0_scf*1.e-14/(aosc3*(pba->Omega0_g+pba->Omega0_ur)));
-    theta_ini = 0.2*pow(4.*pow(masstohubble_ini,2.)-2.*pba->scf_parameters[0]*exp(Omega_ini),0.5);
-    y1_ini = 5.*theta_ini;
+        theta_ini = 0.2*pow(pow(y1_ini,2.)-2.*pba->scf_parameters[0]*exp(Omega_ini),0.5);//*(1.+1.e-2*pba->scf_parameters[0]*exp(Omega_ini));
     }
     /** Secant method to fix the value of the boson mass */
     /**if (pba->scf_parameters[0] > 0.){
