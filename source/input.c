@@ -517,9 +517,8 @@ int input_read_parameters(
   double param1,param2,param3;
   int N_ncdm=0,n,entries_read;
   int int1,fileentries;
-  double theta_ini,Omega_ini,masstohubble_ini;
-  double Omega_pivot,aosc;
-  double aosc3,b3,aguess1,aguess2;
+  double theta_ini,y1_ini,Omega_ini,masstohubble_ini;
+  double aosc,aosc3,b3,aguess1,aguess2;
   double theta0,theta1,theta2,theta3,Omega1,Omega2,Omega3;
   double fnu_factor;
   double * pointer1;
@@ -1014,14 +1013,17 @@ int input_read_parameters(
     class_read_double("scf_shooting_parameter",pba->scf_parameters[pba->scf_tuning_index]);
 
     /** - Initial conditions for scalar field variables */
-    /** - Initial value of the mass to Hubble ratio, assumint a_i = 1e-14 */
+    /** - Initial value of the mass to Hubble ratio, assuming a_i = 1e-14 */
     masstohubble_ini = 1.e-28*1.564e29*pba->scf_parameters[1]/(pow(pba->Omega0_g+pba->Omega0_ur,0.5)*pba->H0);
     /** - If lambda < 0 */
     if (pba->scf_parameters[0] < 0.){
-        theta_ini = pba->scf_parameters[pba->scf_tuning_index];
-        //acos(-1./3.)*(1.+exp(-pba->scf_parameters[pba->scf_tuning_index]));
+        theta_ini = acos(-1./3.);
         Omega_ini = log(-12./pba->scf_parameters[0]);
-        printf(" -> Omega_ini = %1.2e, theta_ini = %1.2e\n",Omega_ini,theta_ini);
+        //masstohubble_ini = 1.e-28*pow(pba->scf_parameters[0]/3.-4.,2.)*pow(pba->Omega0_scf/(pba->Omega0_g+pba->Omega0_ur),2.);
+        //y1_ini = pow(4.*pow(masstohubble_ini*fabs(pba->scf_parameters[pba->scf_tuning_index]),2.)-(2./3.)*pba->scf_parameters[0]*exp(Omega_ini),0.5);
+        y1_ini = pow(pba->scf_parameters[pba->scf_tuning_index]-(2./3.)*pba->scf_parameters[0]*exp(Omega_ini),0.5);
+        printf(" -> Omega_ini = %1.2e, theta_ini = %1.2e, y1_ini = %1.2e\n",Omega_ini,theta_ini,y1_ini);
+        printf(" -> tuning = %1.2e\n",pba->scf_parameters[pba->scf_tuning_index]);
     }
     else{
     /** - Otherwise: lambda > = 0 */
@@ -1031,10 +1033,12 @@ int input_read_parameters(
         /** - Solve the cubic equation for aosc by Newton-Raphson. It works reasonably for lambda >=0 */
     aosc3 = pow(aosc_cubic(aosc,b3),3.);
         /** - Use a third order approximation for Omega_ini */
-    Omega_pivot = log(pba->Omega0_scf*1.e-14/(aosc3*(pba->Omega0_g+pba->Omega0_ur)));
+    //Omega_pivot = log(pba->Omega0_scf*1.e-14/(aosc3*(pba->Omega0_g+pba->Omega0_ur)));
         /** - Save the initial values */
-    Omega_ini = pba->scf_parameters[pba->scf_tuning_index]+Omega_pivot;
-    theta_ini = 0.2*pow(4.*pow(masstohubble_ini,2.)-4.*pba->scf_parameters[0]*exp(Omega_ini),0.5);
+    Omega_ini = pba->scf_parameters[pba->scf_tuning_index]+
+        log(pba->Omega0_scf*1.e-14/(aosc3*(pba->Omega0_g+pba->Omega0_ur)));
+    theta_ini = 0.2*pow(4.*pow(masstohubble_ini,2.)-2.*pba->scf_parameters[0]*exp(Omega_ini),0.5);
+    y1_ini = 5.*theta_ini;
     }
     /** Secant method to fix the value of the boson mass */
     /**if (pba->scf_parameters[0] > 0.){
@@ -1080,7 +1084,8 @@ int input_read_parameters(
     if (flag1 == _TRUE_){
       if((strstr(string1,"y") != NULL) || (strstr(string1,"Y") != NULL)){
         pba->attractor_ic_scf = _TRUE_;
-        pba->y_phi_ini_scf = 2.*masstohubble_ini;
+        pba->y_phi_ini_scf = y1_ini;
+          //2.*masstohubble_ini;
       }
       else{
         pba->attractor_ic_scf = _FALSE_;
