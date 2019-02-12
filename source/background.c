@@ -2050,12 +2050,13 @@ int background_derivs(
       (pvecback[pba->index_bg_w_tot]+cos_scf(pba,y[pba->index_bi_theta_phi_scf]));
       
     dy[pba->index_bi_theta_phi_scf] = y[pba->index_bi_a]*pvecback[pba->index_bg_H]*
-      (-3.*sin_scf(pba,y[pba->index_bi_theta_phi_scf])+y[pba->index_bi_y_phi_scf]);
+      (-3.*sin_scf(pba,y[pba->index_bi_theta_phi_scf])+
+       pow(pow(y[pba->index_bi_y_phi_scf],2.)-4.*pba->scf_parameters[0]*exp(y[pba->index_bi_Omega_phi_scf]),0.5)); //y[pba->index_bi_y_phi_scf]);
       
       //General expression for: axion (lambda >0), quadratic (lambda =0), cosh (lambda < 0)
     dy[pba->index_bi_y_phi_scf] = y[pba->index_bi_a]*pvecback[pba->index_bg_H]*
-       (1.5*(1.+pvecback[pba->index_bg_w_tot])*y[pba->index_bi_y_phi_scf]
-        + 0.5*pba->scf_parameters[0]*exp(y[pba->index_bi_Omega_phi_scf])*sin_scf(pba,y[pba->index_bi_theta_phi_scf]));
+      1.5*(1.+pvecback[pba->index_bg_w_tot])*y[pba->index_bi_y_phi_scf];
+        //+ 0.5*pba->scf_parameters[0]*exp(y[pba->index_bi_Omega_phi_scf])*sin_scf(pba,y[pba->index_bi_theta_phi_scf]));
   }
 
 

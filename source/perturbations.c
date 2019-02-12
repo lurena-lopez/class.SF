@@ -7242,7 +7242,7 @@ int perturb_derivs(double tau,
       /** ---> Equations of motion for omega */
  
         dy[pv->index_pt_omega_scf] = a_prime_over_a*(1.5*pvecback[pba->index_bg_w_tot]-0.5-0.5*pba->scf_parameters[0]*
-                                                     exp(Omega_phi_scf)*sin_scf(pba,theta_phi_scf)/y1_phi_scf)*y[pv->index_pt_omega_scf];
+                                                     exp(Omega_phi_scf)*sin_scf(pba,theta_phi_scf)/pow(pow(y1_phi_scf,2.)-4.*pba->scf_parameters[0]*exp(Omega_phi_scf),0.5))*y[pv->index_pt_omega_scf];
       
     /** ---> Equations of motion for the density contrasts */
         dy[pv->index_pt_delta0_scf] = -a_prime_over_a*((3.*sin_scf(pba,theta_phi_scf)+omega_scf*(1.-cos_scf(pba,theta_phi_scf)))*delta1_scf
@@ -7251,8 +7251,8 @@ int perturb_derivs(double tau,
         
         /** Proper correction for the axion case */
         dy[pv->index_pt_delta1_scf] = -a_prime_over_a*((3.*cos_scf(pba,theta_phi_scf)
-                                                        +(omega_scf-0.5*pba->scf_parameters[0]*exp(Omega_phi_scf)/y1_phi_scf)*sin_scf(pba,theta_phi_scf))*delta1_scf
-                                                       -(omega_scf-0.5*pba->scf_parameters[0]*exp(Omega_phi_scf)/y1_phi_scf)*(1.+cos_scf(pba,theta_phi_scf))*delta0_scf)
+                                                        +(omega_scf-0.5*pba->scf_parameters[0]*exp(Omega_phi_scf)/pow(pow(y1_phi_scf,2.)-4.*pba->scf_parameters[0]*exp(Omega_phi_scf),0.5))*sin_scf(pba,theta_phi_scf))*delta1_scf
+                                                       -(omega_scf-0.5*pba->scf_parameters[0]*exp(Omega_phi_scf)/pow(pow(y1_phi_scf,2.)-4.*pba->scf_parameters[0]*exp(Omega_phi_scf),0.5))*(1.+cos_scf(pba,theta_phi_scf))*delta0_scf)
                                       -metric_continuity*sin_scf(pba,theta_phi_scf); //metric_continuity = h'/2
 
     }
