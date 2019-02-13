@@ -1013,31 +1013,32 @@ int input_read_parameters(
     class_read_double("scf_shooting_parameter",pba->scf_parameters[pba->scf_tuning_index]);
 
     /** - Initial conditions for scalar field variables */
-    /** - Initial value of the mass to Hubble ratio, assuming a_i = 1e-14 */
-    masstohubble_ini = 1.e-28*1.564e29*pba->scf_parameters[1]/(pow(pba->Omega0_g+pba->Omega0_ur,0.5)*pba->H0);
     /** - If lambda < 0 */
     if (pba->scf_parameters[0] < 0.){
         theta_ini = acos(-1./3.);
         Omega_ini = log(-12./pba->scf_parameters[0]);
+        /** - For the initial mass to Hubble ratio we are using the estimation in Eq.(22) of Matos & Urena-Lopez in astro-ph/0006024 [PRD 63.063056, 2001] */
+        /** - We assume a_i = 1.e-14 */
         masstohubble_ini = 1.e-28*pow(pba->scf_parameters[0]/3.-4.,2.)*pow(pba->Omega0_scf/(pba->Omega0_g+pba->Omega0_ur),2.);
-        //y1_ini = pow(4.*pow(masstohubble_ini*fabs(pba->scf_parameters[pba->scf_tuning_index]),2.)-(2./3.)*pba->scf_parameters[0]*exp(Omega_ini),0.5);
+        /** The parameter to be adjusted is y1_ini, and in consequence the field mass is an output value linked to lambda */
         y1_ini = 2.*masstohubble_ini*pba->scf_parameters[pba->scf_tuning_index];
-        printf(" -> Omega_ini = %1.2e, theta_ini = %1.2e, y1_ini = %1.2e\n",Omega_ini,theta_ini,y1_ini);
-        printf(" -> tuning = %1.2e, y_ini = %1.2e\n",pba->scf_parameters[pba->scf_tuning_index],
-               pow(pow(2.*masstohubble_ini,2.)-2.*pba->scf_parameters[0]*exp(Omega_ini)*pow(cos(0.5*theta_ini),2.),0.5));
+        //printf(" -> Omega_ini = %1.2e, theta_ini = %1.2e, y1_ini = %1.2e\n",Omega_ini,theta_ini,y1_ini);
+        //printf(" -> tuning = %1.2e, y_ini = %1.2e\n",pba->scf_parameters[pba->scf_tuning_index],
+        //       pow(pow(2.*masstohubble_ini,2.)-2.*pba->scf_parameters[0]*exp(Omega_ini)*pow(cos(0.5*theta_ini),2.),0.5));
     }
     else{
-    /** - Otherwise: lambda > = 0 */
-    /** - Calculate pivot value Omega_pivot for the calculation of appropriate initial conditions */
-    aosc = pow((1.25*_PI_/masstohubble_ini)/pow(1.+pow(_PI_,2)/36.,0.5),0.5);
-    b3 = 1.e-14*pba->scf_parameters[0]*pba->Omega0_scf/(72.*(pba->Omega0_g+pba->Omega0_ur));
+        /** - Otherwise: lambda > = 0 */
+        /** - Initial value of the mass to Hubble ratio, assuming a_i = 1.e-14 */
+        masstohubble_ini = 1.e-28*1.564e29*pba->scf_parameters[1]/(pow(pba->Omega0_g+pba->Omega0_ur,0.5)*pba->H0);
+        /** - Calculate pivot value Omega_pivot for the calculation of appropriate initial conditions */
+        aosc = pow((1.25*_PI_/masstohubble_ini)/pow(1.+pow(_PI_,2)/36.,0.5),0.5);
+        b3 = 1.e-14*pba->scf_parameters[0]*pba->Omega0_scf/(72.*(pba->Omega0_g+pba->Omega0_ur));
         /** - Solve the cubic equation for aosc by Newton-Raphson. It works reasonably for lambda >=0 */
-    aosc3 = pow(aosc_cubic(aosc,b3),3.);
+        aosc3 = pow(aosc_cubic(aosc,b3),3.);
+        /** - For the initial values we are using the estimations in Eq.(5) of Cedeno et al in arXiv:1703.10180 [PRD 96.061301, 2017]*/
         /** - Use a third order approximation for Omega_ini */
-    //Omega_pivot = log(pba->Omega0_scf*1.e-14/(aosc3*(pba->Omega0_g+pba->Omega0_ur)));
-        /** - Save the initial values */
-    y1_ini = 2.*masstohubble_ini;
-    Omega_ini = pba->scf_parameters[pba->scf_tuning_index]+
+        y1_ini = 2.*masstohubble_ini;
+        Omega_ini = pba->scf_parameters[pba->scf_tuning_index]+
         log(pba->Omega0_scf*1.e-14/(aosc3*(pba->Omega0_g+pba->Omega0_ur)));
         theta_ini = 0.2*pow(pow(y1_ini,2.)-2.*pba->scf_parameters[0]*exp(Omega_ini),0.5);//*(1.+1.e-2*pba->scf_parameters[0]*exp(Omega_ini));
     }

@@ -1,10 +1,8 @@
-/** @file class.c 
- * Julien Lesgourgues, 17.04.2011    
+/** @file class.c
+ * Julien Lesgourgues, 17.04.2011
  */
- 
-#include "class.h"
 
-/* this main runs only the background part */
+#include "class.h"
 
 int main(int argc, char **argv) {
 
@@ -21,7 +19,7 @@ int main(int argc, char **argv) {
   ErrorMsg errmsg;            /* for error messages */
 
   if (input_init_from_arguments(argc, argv,&pr,&ba,&th,&pt,&tr,&pm,&sp,&nl,&le,&op,errmsg) == _FAILURE_) {
-    printf("\n\nError running input_init_from_arguments \n=>%s\n",errmsg); 
+    printf("\n\nError running input_init_from_arguments \n=>%s\n",errmsg);
     return _FAILURE_;
   }
 
@@ -30,26 +28,82 @@ int main(int argc, char **argv) {
     return _FAILURE_;
   }
 
-  /****** here you can output the evolution of any background
-	  quanitity you are interested in ******/
+  if (thermodynamics_init(&pr,&ba,&th) == _FAILURE_) {
+    printf("\n\nError in thermodynamics_init \n=>%s\n",th.error_message);
+    return _FAILURE_;
+  }
 
-  int index_tau;
+  if (perturb_init(&pr,&ba,&th,&pt) == _FAILURE_) {
+    printf("\n\nError in perturb_init \n=>%s\n",pt.error_message);
+    return _FAILURE_;
+  }
 
-  for (index_tau=0; index_tau<ba.bt_size; index_tau++) {
+  if (primordial_init(&pr,&pt,&pm) == _FAILURE_) {
+    printf("\n\nError in primordial_init \n=>%s\n",pm.error_message);
+    return _FAILURE_;
+  }
 
-    fprintf(stdout,
-	   // "tau=%e z=%e a=%e H=%e Omega_phi=%e\n",
-        "%e %e %e\n",
-//	    ba.tau_table[index_tau],
-//	    ba.z_table[index_tau],
-	    log10(ba.background_table[index_tau*ba.bg_size+ba.index_bg_a]),
-//	    ba.background_table[index_tau*ba.bg_size+ba.index_bg_H],
-        exp(ba.background_table[index_tau*ba.bg_size+ba.index_bg_Omega_phi_scf]),
-        ba.background_table[index_tau*ba.bg_size+ba.index_bg_theta_phi_scf]);
+  if (nonlinear_init(&pr,&ba,&th,&pt,&pm,&nl) == _FAILURE_) {
+    printf("\n\nError in nonlinear_init \n=>%s\n",nl.error_message);
+    return _FAILURE_;
+  }
 
+  if (transfer_init(&pr,&ba,&th,&pt,&nl,&tr) == _FAILURE_) {
+    printf("\n\nError in transfer_init \n=>%s\n",tr.error_message);
+    return _FAILURE_;
+  }
+
+  if (spectra_init(&pr,&ba,&pt,&pm,&nl,&tr,&sp) == _FAILURE_) {
+    printf("\n\nError in spectra_init \n=>%s\n",sp.error_message);
+    return _FAILURE_;
+  }
+
+  if (lensing_init(&pr,&pt,&sp,&nl,&le) == _FAILURE_) {
+    printf("\n\nError in lensing_init \n=>%s\n",le.error_message);
+    return _FAILURE_;
+  }
+
+  if (output_init(&ba,&th,&pt,&pm,&tr,&sp,&nl,&le,&op) == _FAILURE_) {
+    printf("\n\nError in output_init \n=>%s\n",op.error_message);
+    return _FAILURE_;
   }
 
   /****** all calculations done, now free the structures ******/
+
+  if (lensing_free(&le) == _FAILURE_) {
+    printf("\n\nError in lensing_free \n=>%s\n",le.error_message);
+    return _FAILURE_;
+  }
+
+  if (spectra_free(&sp) == _FAILURE_) {
+    printf("\n\nError in spectra_free \n=>%s\n",sp.error_message);
+    return _FAILURE_;
+  }
+
+  if (transfer_free(&tr) == _FAILURE_) {
+    printf("\n\nError in transfer_free \n=>%s\n",tr.error_message);
+    return _FAILURE_;
+  }
+
+  if (nonlinear_free(&nl) == _FAILURE_) {
+    printf("\n\nError in nonlinear_free \n=>%s\n",nl.error_message);
+    return _FAILURE_;
+  }
+
+  if (primordial_free(&pm) == _FAILURE_) {
+    printf("\n\nError in primordial_free \n=>%s\n",pm.error_message);
+    return _FAILURE_;
+  }
+
+  if (perturb_free(&pt) == _FAILURE_) {
+    printf("\n\nError in perturb_free \n=>%s\n",pt.error_message);
+    return _FAILURE_;
+  }
+
+  if (thermodynamics_free(&th) == _FAILURE_) {
+    printf("\n\nError in thermodynamics_free \n=>%s\n",th.error_message);
+    return _FAILURE_;
+  }
 
   if (background_free(&ba) == _FAILURE_) {
     printf("\n\nError in background_free \n=>%s\n",ba.error_message);
