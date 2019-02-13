@@ -1029,15 +1029,15 @@ int input_read_parameters(
         /** - Initial value of the mass to Hubble ratio, assuming a_i = 1.e-14 */
         masstohubble_ini = 1.e-28*1.564e29*pba->scf_parameters[1]/(pow(pba->Omega0_g+pba->Omega0_ur,0.5)*pba->H0);
         /** - Calculate pivot value of Omega_ini for the calculation of appropriate initial conditions */
-        aosc = pow((1.25*_PI_/masstohubble_ini)/pow(1.+pow(_PI_,2)/36.,0.5),0.5);
-        b3 = 1.e-14*pba->scf_parameters[0]*pba->Omega0_scf/(72.*(pba->Omega0_g+pba->Omega0_ur));
+        aosc = 1.e-14*pow(1.25*_PI_/(masstohubble_ini*pow(1.+pow(_PI_,2)/36.,0.5)),0.5);
+        b3 = pba->scf_parameters[0]*pba->Omega0_scf/(72.*(pba->Omega0_g+pba->Omega0_ur));
         /** - Solve the cubic equation for aosc by Newton-Raphson. It works reasonably for lambda >=0 */
         aosc3 = pow(aosc_cubic(aosc,b3),3.);
         /** - For the initial values we are using the estimations in Eq.(5) of Cedeno et al in arXiv:1703.10180 [PRD 96.061301, 2017]*/
         /** - Use a third order approximation for Omega_ini */
         y1_ini = 2.*masstohubble_ini;
         Omega_ini = pba->scf_parameters[pba->scf_tuning_index]+
-        log(pba->Omega0_scf*1.e-14/(aosc3*(pba->Omega0_g+pba->Omega0_ur)));
+            log(pba->Omega0_scf*1.e-56/(aosc3*(pba->Omega0_g+pba->Omega0_ur)));
         theta_ini = 0.2*pow(pow(y1_ini,2.)-2.*pba->scf_parameters[0]*exp(Omega_ini),0.5);
     }
     /** Secant method to fix the value of the boson mass */
@@ -3996,7 +3996,9 @@ double aosc_cubic(double aosc,
     double aguess2;
     int i;
     for (i=0; i < 30; i++) {
-        aguess2 = aguess1 - (b3*pow(aguess1,3.)+pow(aguess1,2.)-pow(aosc,2.))/(3.*b3*pow(aguess1,2.)+2.*aguess1);
+        /** - We use here an exponential approximation to calculate aosc */
+        aguess2 = aguess1 - (pow(aguess1,2.)*exp(b3*aguess1)-pow(aosc,2.))/(exp(b3*aguess1)*(b3*pow(aguess1,2.)+2.*aguess1));
+        //aguess2 = aguess1 - (b3*pow(aguess1,3.)+pow(aguess1,2.)-pow(aosc,2.))/(3.*b3*pow(aguess1,2.)+2.*aguess1);
         //aguess2 = aguess1 - (b3*pow(aguess1,4.)+pow(aguess1,3.)-pow(aosc,2.)*aguess1-b3)/(4.*b3*pow(aguess1,3.)+3.*pow(aguess1,2.)-pow(aosc,2.));
         if (abs(aguess2-aguess1)/aguess1 < 1.e-4) break;
         aguess1 = aguess2;
