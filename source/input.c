@@ -1011,7 +1011,7 @@ int input_read_parameters(
                "Tuning index scf_tuning_index = %d is larger than the number of entries %d in scf_parameters. Check your .ini file.",pba->scf_tuning_index,pba->scf_parameters_size);
     /** - Assign shooting parameter */
     class_read_double("scf_shooting_parameter",pba->scf_parameters[pba->scf_tuning_index]);
-
+    
     /** - Initial conditions for scalar field variables */
     /** - If lambda < 0 */
     if (pba->scf_parameters[0] < 0.){
@@ -1031,14 +1031,16 @@ int input_read_parameters(
         /** - Calculate pivot value of Omega_ini for the calculation of appropriate initial conditions */
         aosc = 1.e-14*pow(1.25*_PI_/(masstohubble_ini*pow(1.+pow(_PI_,2)/36.,0.5)),0.5);
         b3 = pba->scf_parameters[0]*pba->Omega0_scf/(72.*(pba->Omega0_g+pba->Omega0_ur));
-        /** - Solve the cubic equation for aosc by Newton-Raphson. It works reasonably for lambda >=0 */
+        /** - Solve the exponential equation for aosc by Newton-Raphson. It works reasonably for lambda >=0 */
         aosc3 = pow(aosc_cubic(aosc,b3),3.);
         /** - For the initial values we are using the estimations in Eq.(5) of Cedeno et al in arXiv:1703.10180 [PRD 96.061301, 2017]*/
         /** - Use a third order approximation for Omega_ini */
         y1_ini = 2.*masstohubble_ini;
         Omega_ini = pba->scf_parameters[pba->scf_tuning_index]+
             log(pba->Omega0_scf*1.e-56/(aosc3*(pba->Omega0_g+pba->Omega0_ur)));
-        theta_ini = 0.2*pow(pow(y1_ini,2.)-2.*pba->scf_parameters[0]*exp(Omega_ini),0.5);
+        theta_ini = 0.2*y1_ini*pow(1.-2.*pba->scf_parameters[0]*exp(Omega_ini)/pow(y1_ini,2.),0.5);
+        printf(" -> ratio = %1.2e, lambda_scf = %1.2e, tuning = %1.2e, suggested = %1.2e\n",2.*pba->scf_parameters[0]*exp(Omega_ini)/pow(y1_ini,2.),pba->scf_parameters[0],pba->scf_parameters[pba->scf_tuning_index],
+               2.*log(y1_ini)-log(pba->Omega0_scf*1.e-56/(aosc3*(pba->Omega0_g+pba->Omega0_ur)))-log(2.*pba->scf_parameters[0]));
     }
     /** Secant method to fix the value of the boson mass */
     /**if (pba->scf_parameters[0] > 0.){
@@ -4006,7 +4008,7 @@ double aosc_cubic(double aosc,
     return aguess2;
 }
 
-double fmass(double theta1,
+/** double fmass(double theta1,
              double Omega1,
              double theta0,
              double lambda) {
@@ -4018,4 +4020,4 @@ double verify(double theta_ini,
               double theta0,
               double lambda) {
     return (pow(theta_ini/theta0,2.0) + 2.*lambda*exp(Omega_ini)/pow(5.*theta0,2.0) - 1.)/(pow(theta_ini/theta0,2.0) + 2.*lambda*exp(Omega_ini)/pow(5.*theta0,2.0) + 1.);
-}
+} */
