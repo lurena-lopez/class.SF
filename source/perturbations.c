@@ -4088,11 +4088,15 @@ int perturb_initial_conditions(struct precision * ppr,
       rho_m += ppw->pvecback[pba->index_bg_rho_dcdm];
     }
     
-    /* Include scalar field as part of the matter budget always. */
+    /* Include scalar field initially as part of the matter or radiation budget. */
     if (pba->has_scf == _TRUE_) {
-      rho_m += ppw->pvecback[pba->index_bg_rho_scf];
+        if (pba->scf_parameters[0] < 0.){
+            rho_r += ppw->pvecback[pba->index_bg_rho_scf];
+        }
+        else{
+            rho_m += ppw->pvecback[pba->index_bg_rho_scf];
+        }
     }
-
     if (pba->has_dr == _TRUE_) {
       rho_r += ppw->pvecback[pba->index_bg_rho_dr];
       rho_nu += ppw->pvecback[pba->index_bg_rho_dr];
