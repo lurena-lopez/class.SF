@@ -2120,7 +2120,8 @@ int perturb_solve(
   int index_ikout;
 
   /* Related to the scf */
-    double Omega_phi,theta_phi,y1_phi,m_scf_over_H;
+    //double Omega_phi,theta_phi,y1_phi,m_scf_over_H;
+  double m_scf_over_H;
 
   /** - initialize indices relevant for back/thermo tables search */
   ppw->last_index_back=0;
@@ -2251,12 +2252,13 @@ int perturb_solve(
 
       if (pba->has_scf == _TRUE_) {
       /* also check that the scf is slowly-rolling */
-      Omega_phi = ppw->pvecback[pba->index_bg_Omega_phi_scf];
-      theta_phi = ppw->pvecback[pba->index_bg_theta_phi_scf];
-      y1_phi = ppw->pvecback[pba->index_bg_y_phi_scf];
+      //Omega_phi = ppw->pvecback[pba->index_bg_Omega_phi_scf];
+      //theta_phi = ppw->pvecback[pba->index_bg_theta_phi_scf];
+      //y1_phi = ppw->pvecback[pba->index_bg_y_phi_scf];
       /** Following expression comes from a trigonometric-hyperbolic identity for mass_scf */
-      m_scf_over_H = 0.5*pow(pow(y1_phi,2.)+2.*pba->scf_parameters[0]*exp(Omega_phi)*cos_scf(pba,0.5*theta_phi)*cos_scf(pba,0.5*theta_phi),0.5);
-      
+      //m_scf_over_H = 0.5*pow(pow(y1_phi,2.)+2.*pba->scf_parameters[0]*exp(Omega_phi)*cos_scf(pba,0.5*theta_phi)*cos_scf(pba,0.5*theta_phi),0.5);
+      m_scf_over_H = 0.5*ppw->pvecback[pba->index_bg_y_phi_scf];
+                             
       if (m_scf_over_H > 1.e-2)
       is_early_enough = _FALSE_;
       }
@@ -4048,7 +4050,7 @@ int perturb_initial_conditions(struct precision * ppr,
   double s2_squared;
 
   /** Auxiliar variables for scalar field */
-  double theta_phi, y1_phi;
+  double Omega_phi, theta_phi, y1_phi;
 
   if (_scalars_) {
 
@@ -4086,11 +4088,15 @@ int perturb_initial_conditions(struct precision * ppr,
       rho_m += ppw->pvecback[pba->index_bg_rho_dcdm];
     }
     
-    /* Include scalar field as part of the matter budget always. */
+    /* Include scalar field initially as part of the matter or radiation budget. */
     if (pba->has_scf == _TRUE_) {
-      rho_m += ppw->pvecback[pba->index_bg_rho_scf];
+        if (pba->scf_parameters[0] < 0.){
+            rho_r += ppw->pvecback[pba->index_bg_rho_scf];
+        }
+        else{
+            rho_m += ppw->pvecback[pba->index_bg_rho_scf];
+        }
     }
-
     if (pba->has_dr == _TRUE_) {
       rho_r += ppw->pvecback[pba->index_bg_rho_dr];
       rho_nu += ppw->pvecback[pba->index_bg_rho_dr];
@@ -4206,12 +4212,13 @@ int perturb_initial_conditions(struct precision * ppr,
       if (pba->has_scf == _TRUE_) {
        
           /** Scalar field variables from the background */
-          //Omega_phi = ppw->pvecback[pba->index_bg_Omega_phi_scf];
+          Omega_phi = ppw->pvecback[pba->index_bg_Omega_phi_scf];
           theta_phi = ppw->pvecback[pba->index_bg_theta_phi_scf];
           y1_phi = ppw->pvecback[pba->index_bg_y_phi_scf];
           
-          /** Initial conditions in new formalism. Notice that by definition: omega=k^2/(H^2 y1) */
-          ppw->pv->y[ppw->pv->index_pt_omega_scf] = k*k/(pow(a*ppw->pvecback[pba->index_bg_H],2.)*y1_phi);
+          /** Initial conditions in new formalism. Notice that by definition: omega=k^2/(a^2 H^2 y1) */
+          ppw->pv->y[ppw->pv->index_pt_omega_scf] = k*k/(pow(a*ppw->pvecback[pba->index_bg_H],2.)*
+                                                         pow(pow(y1_phi,2.)-pba->scf_parameters[0]*exp(Omega_phi)*(1.+cos_scf(pba,theta_phi)),0.5));
           
           /** Canonical field (solving for the perturbations):
            Attractor solution around the critical point of the perturbation equations */
@@ -7241,8 +7248,9 @@ int perturb_derivs(double tau,
       
       /** ---> Equations of motion for omega */
  
-        dy[pv->index_pt_omega_scf] = a_prime_over_a*(1.5*pvecback[pba->index_bg_w_tot]-0.5-0.5*pba->scf_parameters[0]*
-                                                     exp(Omega_phi_scf)*sin_scf(pba,theta_phi_scf)/y1_phi_scf)*y[pv->index_pt_omega_scf];
+        dy[pv->index_pt_omega_scf] = a_prime_over_a*y[pv->index_pt_omega_scf]*(1.5*pvecback[pba->index_bg_w_tot]-0.5-0.5*pba->scf_parameters[0]*
+                                                     exp(Omega_phi_scf)*sin_scf(pba,theta_phi_scf)/pow(pow(y1_phi_scf,2.)-
+                                                    pba->scf_parameters[0]*exp(Omega_phi_scf)*(1.+cos_scf(pba,theta_phi_scf)),0.5));
       
     /** ---> Equations of motion for the density contrasts */
         dy[pv->index_pt_delta0_scf] = -a_prime_over_a*((3.*sin_scf(pba,theta_phi_scf)+omega_scf*(1.-cos_scf(pba,theta_phi_scf)))*delta1_scf
@@ -7251,8 +7259,10 @@ int perturb_derivs(double tau,
         
         /** Proper correction for the axion case */
         dy[pv->index_pt_delta1_scf] = -a_prime_over_a*((3.*cos_scf(pba,theta_phi_scf)
-                                                        +(omega_scf-0.5*pba->scf_parameters[0]*exp(Omega_phi_scf)/y1_phi_scf)*sin_scf(pba,theta_phi_scf))*delta1_scf
-                                                       -(omega_scf-0.5*pba->scf_parameters[0]*exp(Omega_phi_scf)/y1_phi_scf)*(1.+cos_scf(pba,theta_phi_scf))*delta0_scf)
+                                                        +(omega_scf-0.5*pba->scf_parameters[0]*exp(Omega_phi_scf)/pow(pow(y1_phi_scf,2.)-
+                                                        pba->scf_parameters[0]*exp(Omega_phi_scf)*(1.+cos_scf(pba,theta_phi_scf)),0.5))*sin_scf(pba,theta_phi_scf))*delta1_scf
+                                                       -(omega_scf-0.5*pba->scf_parameters[0]*exp(Omega_phi_scf)/pow(pow(y1_phi_scf,2.)-
+                                                        pba->scf_parameters[0]*exp(Omega_phi_scf)*(1.+cos_scf(pba,theta_phi_scf)),0.5))*(1.+cos_scf(pba,theta_phi_scf))*delta0_scf)
                                       -metric_continuity*sin_scf(pba,theta_phi_scf); //metric_continuity = h'/2
 
     }
