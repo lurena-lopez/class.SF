@@ -1027,7 +1027,7 @@ int input_read_parameters(
     else{
         /** - Otherwise: lambda > = 0 */
         /** - Initial value of the mass to Hubble ratio, assuming a_i = 1.e-14 */
-        masstohubble_ini = 1.e-28*1.564e29*pba->scf_parameters[1]/(pow(pba->Omega0_g+pba->Omega0_ur,0.5)*pba->H0);
+        masstohubble_ini = 1.e-28*1.564e29*pow(10.,pba->scf_parameters[1])/(pow(pba->Omega0_g+pba->Omega0_ur,0.5)*pba->H0);
         /** - Calculate pivot value of Omega_ini for the calculation of appropriate initial conditions */
         aosc = 1.e-14*pow(1.25*_PI_/(masstohubble_ini*pow(1.+pow(_PI_,2)/36.,0.5)),0.5);
         b3 = pba->scf_parameters[0]*pba->Omega0_scf/(72.*(pba->Omega0_g+pba->Omega0_ur));

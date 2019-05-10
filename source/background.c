@@ -1652,7 +1652,7 @@ int background_solve(
       printf(" -> lambda_scf = %1.2e\n",pba->scf_parameters[0]);
       printf(" -> Mass_scf = %5.4e [eV], %5.4e [H_0], %5.4e [1/Mpc]\n",
              3.19696e-30*pvecback[pba->index_bg_y_phi_scf]*pvecback[pba->index_bg_H], 0.5*pvecback[pba->index_bg_y_phi_scf], 0.5*pvecback[pba->index_bg_y_phi_scf]*pvecback[pba->index_bg_H]);
-        printf(" -> wished = %1.2e [eV]\n",pba->scf_parameters[1]);
+        printf(" -> wished = %1.2e [eV]\n",pow(10.,pba->scf_parameters[1]));
     }
     if(pba->has_lambda == _TRUE_){
       printf(" Lambda details:\n");
