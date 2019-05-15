@@ -1035,6 +1035,7 @@ int input_read_parameters(
         aosc3 = pow(aosc_cubic(aosc,b3),3.);
         /** - For the initial values we are using the estimations in Eq.(5) of Cedeno et al in arXiv:1703.10180 [PRD 96.061301, 2017] */
         y1_ini = 2.*masstohubble_ini;
+        //Omega_ini = pba->scf_parameters[pba->scf_tuning_index]*(2.*log(y1_ini)-log(pba->Omega0_scf*1.e-56/(aosc3*(pba->Omega0_g+pba->Omega0_ur)))-log(2.*pba->scf_parameters[0]))+
         Omega_ini = pba->scf_parameters[pba->scf_tuning_index]+
             log(pba->Omega0_scf*1.e-56/(aosc3*(pba->Omega0_g+pba->Omega0_ur)));
         theta_ini = 0.2*y1_ini*pow(1.-2.*pba->scf_parameters[0]*exp(Omega_ini)/pow(y1_ini,2.),0.5);
