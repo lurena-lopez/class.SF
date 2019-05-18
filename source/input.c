@@ -1022,7 +1022,8 @@ int input_read_parameters(
         /** - We assume a_i = 1.e-14 */
         masstohubble_ini = 1.e-28*pow(pba->scf_parameters[0]/3.-4.,2.)*pow(pba->Omega0_scf/(pba->Omega0_g+pba->Omega0_ur),2.);
         /** The parameter to be adjusted is y1_ini, and in consequence the scalar field mass is an output value linked to lambda */
-        y1_ini = 2.*masstohubble_ini*pba->scf_parameters[pba->scf_tuning_index];
+        /** The tuning parameter was adjusted so that it also works with negative values */
+        y1_ini = 2.*masstohubble_ini*(4.5+pba->scf_parameters[pba->scf_tuning_index]);
     }
     else{
         /** - Otherwise: lambda > = 0 */
@@ -1035,12 +1036,19 @@ int input_read_parameters(
         aosc3 = pow(aosc_cubic(aosc,b3),3.);
         /** - For the initial values we are using the estimations in Eq.(5) of Cedeno et al in arXiv:1703.10180 [PRD 96.061301, 2017] */
         y1_ini = 2.*masstohubble_ini;
-        Omega_ini = pba->scf_parameters[pba->scf_tuning_index]+
+        if (pba->scf_parameters[0] > 0.){
+            Omega_ini = pba->scf_parameters[pba->scf_tuning_index]+2.*log(y1_ini)-log(2.*pba->scf_parameters[0]);
+            //log(pba->Omega0_scf*1.e-56/(aosc3*(pba->Omega0_g+pba->Omega0_ur)));
+        }
+        else{
+            Omega_ini = pba->scf_parameters[pba->scf_tuning_index]+
             log(pba->Omega0_scf*1.e-56/(aosc3*(pba->Omega0_g+pba->Omega0_ur)));
+        }
         theta_ini = 0.2*y1_ini*pow(1.-2.*pba->scf_parameters[0]*exp(Omega_ini)/pow(y1_ini,2.),0.5);
         if (pba->scf_parameters[0] > 0.)
         printf(" -> ratio = %1.6e, lambda_scf = %1.2e, tuning = %1.6e, suggested = %1.6e\n",
-               2.*pba->scf_parameters[0]*exp(Omega_ini)/pow(y1_ini,2.),pba->scf_parameters[0],pba->scf_parameters[pba->scf_tuning_index],
+               2.*pba->scf_parameters[0]*exp(Omega_ini)/pow(y1_ini,2.),pba->scf_parameters[0],pba->scf_parameters[pba->scf_tuning_index]+
+               2.*log(y1_ini)-log(pba->Omega0_scf*1.e-56/(aosc3*(pba->Omega0_g+pba->Omega0_ur)))-log(2.*pba->scf_parameters[0]),
                2.*log(y1_ini)-log(pba->Omega0_scf*1.e-56/(aosc3*(pba->Omega0_g+pba->Omega0_ur)))-log(2.*pba->scf_parameters[0]));
     }
     /** Secant method to fix the value of the boson mass */
