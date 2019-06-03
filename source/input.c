@@ -1035,15 +1035,15 @@ int input_read_parameters(
         /** - Solve the exponential equation for aosc by Newton-Raphson. It works reasonably for lambda >=0 */
         aosc3 = pow(aosc_cubic(aosc,b3),3.);
         /** - For the initial values we are using the estimations in Eq.(5) of Cedeno et al in arXiv:1703.10180 [PRD 96.061301, 2017] */
-        y1_ini = 2.*masstohubble_ini;
         if (pba->scf_parameters[0] > 0.){
-            Omega_ini = pba->scf_parameters[pba->scf_tuning_index]+2.*log(y1_ini)-log(2.*pba->scf_parameters[0]);
+            Omega_ini = pba->scf_parameters[pba->scf_tuning_index]+2.*log(2.*masstohubble_ini)-log(2.*pba->scf_parameters[0]);
             //log(pba->Omega0_scf*1.e-56/(aosc3*(pba->Omega0_g+pba->Omega0_ur)));
         }
         else{
             Omega_ini = pba->scf_parameters[pba->scf_tuning_index]+
-            log(pba->Omega0_scf*1.e-56/(aosc3*(pba->Omega0_g+pba->Omega0_ur)));
+            log(pba->Omega0_scf*1.e-56/(pow(aosc,3.)*(pba->Omega0_g+pba->Omega0_ur)));
         }
+        y1_ini = 2.*masstohubble_ini;
         theta_ini = 0.2*y1_ini*pow(1.-2.*pba->scf_parameters[0]*exp(Omega_ini)/pow(y1_ini,2.),0.5);
         if (pba->scf_parameters[0] > 0.)
         printf(" -> ratio = %1.6e, lambda_scf = %1.2e, tuning = %1.6e, suggested = %1.6e\n",
