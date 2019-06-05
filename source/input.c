@@ -1044,11 +1044,10 @@ int input_read_parameters(
             log(pba->Omega0_scf*1.e-56/(pow(aosc,3.)*(pba->Omega0_g+pba->Omega0_ur)));
         }
         y1_ini = log(2.*masstohubble_ini);
-        theta_ini = 0.2*y1_ini*pow(1.-2.*pba->scf_parameters[0]*exp(Omega_ini)/pow(y1_ini,2.),0.5);
+        theta_ini = 0.2*exp(y1_ini)*pow(1.-2.*pba->scf_parameters[0]*exp(Omega_ini-2.*y1_ini),0.5);
         if (pba->scf_parameters[0] > 0.)
         printf(" -> ratio = %1.6e, lambda_scf = %1.2e, tuning = %1.6e, suggested = %1.6e\n",
-               2.*pba->scf_parameters[0]*exp(Omega_ini-2.*y1_ini),pba->scf_parameters[0],pba->scf_parameters[pba->scf_tuning_index]+
-               2.*y1_ini-log(pba->Omega0_scf*1.e-56/(aosc3*(pba->Omega0_g+pba->Omega0_ur)))-log(2.*pba->scf_parameters[0]),
+               2.*pba->scf_parameters[0]*exp(Omega_ini-2.*y1_ini),pba->scf_parameters[0],pba->scf_parameters[pba->scf_tuning_index],
                2.*y1_ini-log(pba->Omega0_scf*1.e-56/(aosc3*(pba->Omega0_g+pba->Omega0_ur)))-log(2.*pba->scf_parameters[0]));
     }
     /** Secant method to fix the value of the boson mass */
