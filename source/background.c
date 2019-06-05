@@ -1651,7 +1651,7 @@ int background_solve(
 	     exp(pvecback[pba->index_bg_Omega_phi_scf]), pba->Omega0_scf);
       printf(" -> lambda_scf = %1.2e\n",pba->scf_parameters[0]);
       printf(" -> Mass_scf = %5.4e [eV], %5.4e [H_0], %5.4e [1/Mpc]\n",
-             3.19696e-30*pvecback[pba->index_bg_y_phi_scf]*pvecback[pba->index_bg_H], 0.5*pvecback[pba->index_bg_y_phi_scf], 0.5*pvecback[pba->index_bg_y_phi_scf]*pvecback[pba->index_bg_H]);
+             3.19696e-30*exp(pvecback[pba->index_bg_y_phi_scf])*pvecback[pba->index_bg_H], 0.5*exp(pvecback[pba->index_bg_y_phi_scf]), 0.5*exp(pvecback[pba->index_bg_y_phi_scf])*pvecback[pba->index_bg_H]);
         printf(" -> wished = %1.2e [eV]\n",pow(10.,pba->scf_parameters[1]));
     }
     if(pba->has_lambda == _TRUE_){
@@ -1675,7 +1675,7 @@ int background_solve(
       printf("     -> Omega_scf = %g, wished = %g\n",
              pvecback[pba->index_bg_rho_scf]/pvecback[pba->index_bg_rho_crit], pba->Omega0_scf);
         printf(" -> Mass_scf = %5.4e [1/Mpc], %5.4e [eV], %5.4e [H_0]\n",
-               0.5*pvecback[pba->index_bg_y_phi_scf]*pvecback[pba->index_bg_H], 3.19696e-30*pvecback[pba->index_bg_y_phi_scf]*pvecback[pba->index_bg_H], 0.5*pvecback[pba->index_bg_y_phi_scf]);
+               0.5*exp(pvecback[pba->index_bg_y_phi_scf])*pvecback[pba->index_bg_H], 3.19696e-30*exp(pvecback[pba->index_bg_y_phi_scf])*pvecback[pba->index_bg_H], 0.5*exp(pvecback[pba->index_bg_y_phi_scf]));
 
       if(pba->has_lambda == _TRUE_)
 	printf("     -> Omega_Lambda = %g, wished = %g\n",
@@ -2049,13 +2049,14 @@ int background_derivs(
       
     dy[pba->index_bi_theta_phi_scf] = y[pba->index_bi_a]*pvecback[pba->index_bg_H]*
       (-3.*sin_scf(pba,y[pba->index_bi_theta_phi_scf])+
-       y[pba->index_bi_y_phi_scf]*
-       pow(1.-pba->scf_parameters[0]*exp(y[pba->index_bi_Omega_phi_scf])*(1.+cos_scf(pba,y[pba->index_bi_theta_phi_scf]))/pow(y[pba->index_bi_y_phi_scf],2.),0.5));
+       exp(y[pba->index_bi_y_phi_scf])*
+       pow(1.-pba->scf_parameters[0]*exp(y[pba->index_bi_Omega_phi_scf]-2.*y[pba->index_bi_y_phi_scf])
+           *(1.+cos_scf(pba,y[pba->index_bi_theta_phi_scf])),0.5));
               //pow(pow(y[pba->index_bi_y_phi_scf],2.)-pba->scf_parameters[0]*exp(y[pba->index_bi_Omega_phi_scf])*(1.+cos_scf(pba,y[pba->index_bi_theta_phi_scf])),0.5));
       
       //General expression for: axion (lambda >0), quadratic (lambda =0), cosh (lambda < 0)
-    dy[pba->index_bi_y_phi_scf] = y[pba->index_bi_a]*pvecback[pba->index_bg_H]*
-      1.5*(1.+pvecback[pba->index_bg_w_tot])*y[pba->index_bi_y_phi_scf];
+    dy[pba->index_bi_y_phi_scf] = 1.5*y[pba->index_bi_a]*pvecback[pba->index_bg_H]*
+      (1.+pvecback[pba->index_bg_w_tot]);//*y[pba->index_bi_y_phi_scf];
         //+ 0.5*pba->scf_parameters[0]*exp(y[pba->index_bi_Omega_phi_scf])*sin_scf(pba,y[pba->index_bi_theta_phi_scf]));
   }
 
