@@ -1031,12 +1031,12 @@ int input_read_parameters(
         masstohubble_ini = 1.e-28*1.564e29*pow(10.,pba->scf_parameters[1])/(pow(pba->Omega0_g+pba->Omega0_ur,0.5)*pba->H0);
         /** - Calculate pivot value of Omega_ini for the calculation of appropriate initial conditions */
         aosc = 1.e-14*pow(1.25*_PI_/(masstohubble_ini*pow(1.+pow(_PI_,2)/36.,0.5)),0.5);
-        b3 = pba->scf_parameters[0]*pba->Omega0_scf/(72.*(pba->Omega0_g+pba->Omega0_ur));
+        //b3 = pba->scf_parameters[0]*pba->Omega0_scf/(72.*(pba->Omega0_g+pba->Omega0_ur));
         /** - Solve the exponential equation for aosc by Newton-Raphson. It works reasonably for lambda >=0 */
-        aosc3 = pow(aosc_cubic(aosc,b3),3.);
+        //aosc3 = pow(aosc_cubic(aosc,b3),3.);
         /** - For the initial values we are using the estimations in Eq.(5) of Cedeno et al in arXiv:1703.10180 [PRD 96.061301, 2017] */
         if (pba->scf_parameters[0] > 0.){
-            Omega_ini = pba->scf_parameters[pba->scf_tuning_index]+2.*log(2.*masstohubble_ini)-log(2.*pba->scf_parameters[0]);
+            Omega_ini = log(1.+pba->scf_parameters[pba->scf_tuning_index])+2.*log(2.*masstohubble_ini)-log(2.*pba->scf_parameters[0]);
             //log(pba->Omega0_scf*1.e-56/(aosc3*(pba->Omega0_g+pba->Omega0_ur)));
         }
         else{
@@ -1046,38 +1046,13 @@ int input_read_parameters(
         y1_ini = log(2.*masstohubble_ini);
         theta_ini = 0.2*exp(y1_ini)*pow(1.-2.*pba->scf_parameters[0]*exp(Omega_ini-2.*y1_ini),0.5);
         if (pba->scf_parameters[0] > 0.)
-        printf(" -> ratio = %1.6e, lambda_scf = %1.2e, tuning = %1.6e, suggested = %1.6e\n",
+        printf(" -> ratio = %1.6e, lambda_scf = %1.2e, tuning = %1.6e, ln(1+tuning) = %1.6e\n",
                2.*pba->scf_parameters[0]*exp(Omega_ini-2.*y1_ini),pba->scf_parameters[0],pba->scf_parameters[pba->scf_tuning_index],
-               2.*y1_ini-log(pba->Omega0_scf*1.e-56/(aosc3*(pba->Omega0_g+pba->Omega0_ur)))-log(2.*pba->scf_parameters[0]));
+               log(1.+pba->scf_parameters[pba->scf_tuning_index]));
+        //printf(" -> ratio = %1.6e, lambda_scf = %1.2e, tuning = %1.6e, suggested = %1.6e\n",
+        //       2.*pba->scf_parameters[0]*exp(Omega_ini-2.*y1_ini),pba->scf_parameters[0],pba->scf_parameters[pba->scf_tuning_index],
+        //       2.*y1_ini-log(pba->Omega0_scf*1.e-56/(aosc3*(pba->Omega0_g+pba->Omega0_ur)))-log(2.*pba->scf_parameters[0]));
     }
-    /** Secant method to fix the value of the boson mass */
-    /**if (pba->scf_parameters[0] > 0.){
-            theta1 = theta_ini;
-            Omega1 = Omega_ini;
-            theta2 = (36.*_PI_/pow(pba->scf_parameters[0],2.))*1.e28*pow(2.5*theta1*(pba->Omega0_g+pba->Omega0_ur)/pba->Omega0_scf,2.);
-            aosc = pow((0.5*_PI_/theta2)/pow(1.+pow(_PI_,2)/36.,0.5),0.5);
-            aosc3 = pow(aosc_cubic(aosc,b3),3.);
-            Omega2 = log(pba->Omega0_scf*1.e-14/(aosc3*(pba->Omega0_g+pba->Omega0_ur)));
-            for (i=0; i< 30; i++){
-                theta3 = theta1 - (theta1 - theta2)*fmass(theta1,Omega1,theta_ini,pba->scf_parameters[0])/(fmass(theta1,Omega1,theta_ini,pba->scf_parameters[0]) - fmass(theta2,Omega2,theta_ini,pba->scf_parameters[0]));
-                aosc = pow((0.5*_PI_/theta3)/pow(1.+pow(_PI_,2)/36.,0.5),0.5);
-                aosc3 = pow(aosc_cubic(aosc,b3),3.);
-                Omega3 = pba->scf_parameters[pba->scf_tuning_index]+log(pba->Omega0_scf*1.e-14/(aosc3*(pba->Omega0_g+pba->Omega0_ur)));
-                //printf(" -> i = %d\n",i);
-                //printf(" -> theta1 = %1.2e\n",theta1);
-                //printf(" -> theta2 = %1.2e\n",theta2);
-                //printf(" -> theta3 = %1.2e\n",theta3);
-                //printf(" -> abs = %1.2e\n",pow(pow((theta3-theta1)/theta1,2.),0.5));
-                //printf(" -> abs2 = %1.2e\n",pow(pow(verify(theta3,Omega3,theta_ini,pba->scf_parameters[0]),2.),0.5));
-                if (pow(pow(verify(theta3,Omega3,theta_ini,pba->scf_parameters[0]),2.),0.5) < 1.e-6) break;
-                theta1 = theta2;
-                Omega1 = Omega2;
-                theta2 = theta3;
-                Omega2 = Omega3;
-            }
-            theta_ini = theta3;
-            Omega_ini = Omega3;
-     } */
     /** - Transfer the initial values */
     pba->Omega_phi_ini_scf = Omega_ini;
     pba->theta_phi_ini_scf = theta_ini;
