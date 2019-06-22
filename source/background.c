@@ -1414,7 +1414,9 @@ int background_solve(
   int last_index=0;
   /* comoving radius coordinate in Mpc (equal to conformal distance in flat case) */
   double comoving_radius=0.;
-
+  /* initial displacement for axion-SFDM */
+  double ini_displacement=0.;
+    
   bpaw.pba = pba;
   class_alloc(pvecback,pba->bg_size*sizeof(double),pba->error_message);
   bpaw.pvecback = pvecback;
@@ -1652,7 +1654,15 @@ int background_solve(
       printf(" -> lambda_scf = %1.2e\n",pba->scf_parameters[0]);
       printf(" -> Mass_scf = %5.4e [eV], %5.4e [H_0], %5.4e [1/Mpc]\n",
              3.19696e-30*exp(pvecback[pba->index_bg_y_phi_scf])*pvecback[pba->index_bg_H], 0.5*exp(pvecback[pba->index_bg_y_phi_scf]), 0.5*exp(pvecback[pba->index_bg_y_phi_scf])*pvecback[pba->index_bg_H]);
-        printf(" -> wished = %1.2e [eV]\n",pow(10.,pba->scf_parameters[1]));
+      printf(" -> wished = %1.2e [eV]\n",pow(10.,pba->scf_parameters[1]));
+        if (pba->scf_parameters[0] > 0.){
+        ini_displacement = exp(pba->y_phi_ini_scf-0.5*pba->Omega_phi_ini_scf)*
+        pow(1.-pba->scf_parameters[0]*exp(pba->Omega_phi_ini_scf-2.*pba->y_phi_ini_scf)
+            *(1.+cos_scf(pba,pba->theta_phi_ini_scf)),0.5)/pow(2.*pba->scf_parameters[0],0.5);
+            printf("    Initial field misalignment:\n");
+            printf("     -> phi_ini/f = %1.2e [Rad], %1.2e [Deg]\n",2.*atan(ini_displacement),
+             2.*atan(ini_displacement)*180./_PI_);
+        }
     }
     if(pba->has_lambda == _TRUE_){
       printf(" Lambda details:\n");
@@ -1676,7 +1686,11 @@ int background_solve(
              pvecback[pba->index_bg_rho_scf]/pvecback[pba->index_bg_rho_crit], pba->Omega0_scf);
         printf(" -> Mass_scf = %5.4e [1/Mpc], %5.4e [eV], %5.4e [H_0]\n",
                0.5*exp(pvecback[pba->index_bg_y_phi_scf])*pvecback[pba->index_bg_H], 3.19696e-30*exp(pvecback[pba->index_bg_y_phi_scf])*pvecback[pba->index_bg_H], 0.5*exp(pvecback[pba->index_bg_y_phi_scf]));
-
+        printf("    Initial field displacement:\n");
+        printf("     -> phi_ini/f = %1.2e\n",exp(pba->y_phi_ini_scf-0.5*pba->Omega_phi_ini_scf)*
+               pow(1.-pba->scf_parameters[0]*exp(pba->Omega_phi_ini_scf-2.*pba->y_phi_ini_scf)
+                   *(1.+cos_scf(pba,pba->theta_phi_ini_scf)),0.5)*pow(2/pba->scf_parameters[0],0.5));
+    }
       if(pba->has_lambda == _TRUE_)
 	printf("     -> Omega_Lambda = %g, wished = %g\n",
                pvecback[pba->index_bg_rho_lambda]/pvecback[pba->index_bg_rho_crit], pba->Omega0_lambda);
@@ -1686,7 +1700,6 @@ int background_solve(
         printf("%.3f, ",pba->scf_parameters[i]);
       }
       printf("%.3f]\n",pba->scf_parameters[pba->scf_parameters_size-1]);*/
-    }
   }
 
   free(pvecback);
@@ -1814,7 +1827,6 @@ int background_initial_conditions(
     pvecback_integration[pba->index_bi_Omega_phi_scf] = pba->Omega_phi_ini_scf;
     pvecback_integration[pba->index_bi_theta_phi_scf] = pba->theta_phi_ini_scf;
     pvecback_integration[pba->index_bi_y_phi_scf] = pba->y_phi_ini_scf;
-    //printf(" -> Omega_ini = %1.2e, theta_ini = %1.2e, y_ini = %1.2e\n",exp(pba->Omega_phi_ini_scf),pba->theta_phi_ini_scf,pba->y_phi_ini_scf);
     //printf(" -> w_tot = %1.2e\n",pvecback[pba->index_bg_w_tot]);
     //printf(" -> dtheta_ini = %1.2e\n",-3.*sin_scf(pba,pba->theta_phi_ini_scf)+pow(8,0.5)+pba->y_phi_ini_scf);
       //printf(" -> dy_ini = %1.2e\n",1.5*(1.+pvecback[pba->index_bg_w_tot])*(pow(8,0.5)+pba->y_phi_ini_scf)
