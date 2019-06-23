@@ -1028,7 +1028,9 @@ int input_read_parameters(
     else{
         /** - Otherwise: lambda > = 0 */
         /** - Initial value of the mass to Hubble ratio, assuming a_i = 1.e-14 */
-        masstohubble_ini = 15.64*pow(10.,pba->scf_parameters[1])/(pow(pba->Omega0_g+pba->Omega0_ur,0.5)*pba->H0);
+        masstohubble_ini = 1.564e29*pow(ppr->a_ini_over_a_today_default,2.)*pow(10.,pba->scf_parameters[1])/
+        (pow(pba->Omega0_g+pba->Omega0_ur,0.5)*pba->H0);
+        //masstohubble_ini = 15.64*pow(10.,pba->scf_parameters[1])/(pow(pba->Omega0_g+pba->Omega0_ur,0.5)*pba->H0);
         /** - Calculate pivot value of Omega_ini for the calculation of appropriate initial conditions */
         aosc = pow(1.25*_PI_/(masstohubble_ini*pow(1.+pow(_PI_,2)/36.,0.5)),0.5);
         //b3 = pba->scf_parameters[0]*pba->Omega0_scf/(72.*(pba->Omega0_g+pba->Omega0_ur));
@@ -1049,7 +1051,8 @@ int input_read_parameters(
         }
         else{
             Omega_ini = pba->scf_parameters[pba->scf_tuning_index]+
-            log(pba->Omega0_scf*1.e-14/(pow(aosc,3.)*(pba->Omega0_g+pba->Omega0_ur)));
+            log(pba->Omega0_scf*ppr->a_ini_over_a_today_default/(pow(aosc,3.)*(pba->Omega0_g+pba->Omega0_ur)));
+            //log(pba->Omega0_scf*1.e-14/(pow(aosc,3.)*(pba->Omega0_g+pba->Omega0_ur)));
         }
         y1_ini = log(2.*masstohubble_ini);
         theta_ini = 0.2*exp(y1_ini)*pow(1.-2.*pba->scf_parameters[0]*exp(Omega_ini-2.*y1_ini),0.5);
