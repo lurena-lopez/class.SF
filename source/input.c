@@ -1037,17 +1037,18 @@ int input_read_parameters(
         /** - Solve the exponential equation for aosc by Newton-Raphson. It works reasonably for lambda >=0 */
         //aosc3 = pow(aosc_cubic(aosc,b3),3.);
         /** - For the initial values we are using the estimations in Eq.(5) of Cedeno et al in arXiv:1703.10180 [PRD 96.061301, 2017] */
-        if (pba->scf_parameters[0] > 0.){
-            if (pba->scf_parameters[0] > 1.0e4)
-            Omega_ini = log(1.+pba->scf_parameters[pba->scf_tuning_index]-1.0e-5)
-            +2.*log(2.*masstohubble_ini)-log(2.*pba->scf_parameters[0]);
+        if (pba->scf_parameters[0] > 1.e2){
+            //if (pba->scf_parameters[0] > 1.0e4)
+            //Omega_ini = log(1.+pba->scf_parameters[pba->scf_tuning_index]-1.0e-5)
+            //+2.*log(2.*masstohubble_ini)-log(2.*pba->scf_parameters[0]);
             //log(pba->Omega0_scf*1.e-56/(aosc3*(pba->Omega0_g+pba->Omega0_ur)));
-            if ((pba->scf_parameters[0] <= 1.0e4) && (pba->scf_parameters[0] >= 1.0))
-                Omega_ini = log(1.+pba->scf_parameters[pba->scf_tuning_index]-0.9999)
-                +2.*log(2.*masstohubble_ini)-log(2.*pba->scf_parameters[0]);
-            if (pba->scf_parameters[0] < 1.)
-                Omega_ini = pba->scf_parameters[pba->scf_tuning_index]-10.0
-                +2.*log(2.*masstohubble_ini)-log(2.*pba->scf_parameters[0]);
+            //if ((pba->scf_parameters[0] <= 1.0e4) && (pba->scf_parameters[0] >= 1.0))
+            //    Omega_ini = log(1.+pba->scf_parameters[pba->scf_tuning_index]-0.9999)
+            //    +2.*log(2.*masstohubble_ini)-log(2.*pba->scf_parameters[0]);
+            //if (pba->scf_parameters[0] < 1.)
+            Omega_ini = pba->scf_parameters[pba->scf_tuning_index]
+            +2.*log(2.*masstohubble_ini)-log(2.*pba->scf_parameters[0]);
+            
         }
         else{
             Omega_ini = pba->scf_parameters[pba->scf_tuning_index]+
